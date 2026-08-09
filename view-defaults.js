@@ -65,9 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   all.addEventListener('click', activateAll);
   footer.querySelectorAll('.lens[data-lens]').forEach(b => b.addEventListener('click', leaveAll));
+  document.querySelector('#missionPlay')?.addEventListener('click', leaveAll);
 
   document.addEventListener('click', e => {
-    if (e.target.closest?.('[data-more]')) leaveAll();
+    if (e.target.closest?.('[data-more], [data-action="show"]')) leaveAll();
   });
 
   document.querySelector('#homeBtn')?.addEventListener('click', () => {
