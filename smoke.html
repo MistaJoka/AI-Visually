@@ -42,6 +42,7 @@ const frame = document.getElementById('app');
 frame.addEventListener('load', async () => {
   const w = frame.contentWindow, d = frame.contentDocument;
   w.addEventListener('error', e => errors.push(e.message));
+  const click = el => el?.dispatchEvent(new w.MouseEvent('click', {bubbles: true}));
   try {
     await sleep(400);
 
@@ -55,37 +56,76 @@ frame.addEventListener('load', async () => {
     report('World-switch fully removed', !d.querySelector('.world-switch'));
     report('ALL lens injected by view-defaults', !!d.getElementById('allLens'));
 
-    d.querySelector('.district-ai')?.dispatchEvent(new w.MouseEvent('click', {bubbles: true}));
+    // Enterable districts: click at Z1 → auto-zoom to Z2 + camera centers
+    report('Starts at Z1', d.getElementById('zoomLabel').textContent === 'Z1 DISTRICT');
+    click(d.querySelector('.district-ai'));
     await sleep(150);
     report('District click updates inspector', d.getElementById('insTitle')?.textContent === 'AI Reactor');
+    report('District click enters Z2', d.getElementById('zoomLabel').textContent === 'Z2 CONCEPT');
+    report('District click centers camera', (d.getElementById('viewport').getAttribute('transform') || '').includes('translate') && !(d.getElementById('viewport').getAttribute('transform') || '').startsWith('translate(0 0)'));
 
-    d.getElementById('zoomIn').click(); d.getElementById('zoomIn').click();
-    await sleep(200);
+    // Zoom-deeper chip is a real control
+    const zchip = [...d.querySelectorAll('#insBody button[data-go-depth]')].find(b => b.dataset.goDepth === '3');
+    report('Zoom-deeper chips are buttons', !!zchip);
+    click(zchip);
+    await sleep(150);
+    report('Zoom-deeper chip zooms to Z3', d.getElementById('zoomLabel').textContent === 'Z3 IMPLEMENTATION');
     report('Z3 renders nodes', d.querySelectorAll('.node').length > 30, `got ${d.querySelectorAll('.node').length}`);
     report('Z3 renders implementation chips', d.querySelectorAll('.impl').length > 10, `got ${d.querySelectorAll('.impl').length}`);
     report('Nodes carry district tint hook', !!d.querySelector('.node[data-district]'));
     report('Crossing edges detected', d.querySelectorAll('.edge.crossing').length > 5);
 
-    d.querySelector('.impl')?.dispatchEvent(new w.MouseEvent('click', {bubbles: true}));
+    click(d.querySelector('.impl'));
     await sleep(150);
     report('Implementation chip opens Compare', d.getElementById('overlay')?.classList.contains('open'));
     report('Compare cards carry district accent', !!d.querySelector('.compare-grid')?.style.getPropertyValue('--accent'));
     d.getElementById('modalClose')?.click();
 
+    // Search + clickable breadcrumb back up to the district
     const input = d.getElementById('searchInput');
     input.value = 'run llm locally';
     d.getElementById('searchBtn').click();
     await sleep(200);
     report('Search resolves to concept', d.getElementById('insTitle')?.textContent === 'Model Server / API', `got "${d.getElementById('insTitle')?.textContent}"`);
+    const crumbDistrict = d.querySelector('#crumbs button[data-crumb-district]');
+    report('Breadcrumb district is clickable', !!crumbDistrict);
+    click(crumbDistrict);
+    await sleep(150);
+    report('Breadcrumb navigates to district', d.getElementById('insTitle')?.textContent === 'AI Reactor');
+    click(d.querySelector('#crumbs button[data-crumb-home]'));
+    await sleep(150);
+    report('Breadcrumb home returns to welcome', d.getElementById('insTitle')?.textContent === 'The Whole Lab');
 
+    // Learning Path steps travel
+    input.value = 'run llm locally';
+    d.getElementById('searchBtn').click();
+    await sleep(200);
+    click(d.querySelector('[data-action="learn"]'));
+    await sleep(150);
+    const learnStep = d.querySelector('#modalBody button[data-go-node]');
+    report('Learning Path steps are buttons', !!learnStep);
+    const stepName = learnStep?.textContent;
+    click(learnStep);
+    await sleep(150);
+    report('Learning Path step navigates', d.getElementById('insTitle')?.textContent === stepName, `got "${d.getElementById('insTitle')?.textContent}"`);
+
+    // Welcome panel: mission on-ramp + actionable chips
     d.getElementById('homeBtn').click();
     await sleep(150);
-    const sel = d.getElementById('missionSelect');
-    report('12 missions available', sel?.options.length === 12, `got ${sel?.options.length}`);
-    sel.value = 'rag';
-    d.getElementById('missionPlay').click();
+    report('Welcome offers 3 guided missions', d.querySelectorAll('#insBody button[data-go-mission]').length === 3);
+    const searchChip = d.querySelector('#insBody button[data-go-search]');
+    report('Try-this chips are buttons', !!searchChip && !!d.querySelector('#insBody button[data-go-builder]'));
+    click(searchChip);
+    await sleep(200);
+    report('Try-this search chip navigates', (d.getElementById('insTitle')?.textContent || '').includes('MCP'), `got "${d.getElementById('insTitle')?.textContent}"`);
+
+    // Mission playback from the welcome on-ramp
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+    report('12 missions available', d.getElementById('missionSelect')?.options.length === 12, `got ${d.getElementById('missionSelect')?.options.length}`);
+    click(d.querySelector('#insBody button[data-go-mission="rag"]'));
     await sleep(2600);
-    report('Mission playback animates packets', d.querySelectorAll('.packet').length > 0);
+    report('Mission chip starts playback', d.querySelectorAll('.packet').length > 0);
     const dataDistrict = d.querySelector('.district-data');
     report('Mission keeps path districts visible (dim-fix)', dataDistrict && !dataDistrict.classList.contains('dim'));
     d.getElementById('missionPlay').click();

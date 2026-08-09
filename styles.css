@@ -99,6 +99,12 @@
   .node[data-district="edge"] rect{fill:#1c150c}
   .node[data-district="control"] text{font-family:var(--mono)}
   .edge.crossing{opacity:.6;stroke-width:2.5}
+  button.chip{background:#0e1d31;color:var(--ink);cursor:pointer;text-align:left}
+  button.chip:hover{border-color:var(--acid);color:var(--acid)}
+  .crumbs button{background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
+  .crumbs button:hover,.crumbs button:hover b{color:var(--acid)}
+  .learn-chain button{background:#0d1b2e;border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:11px;color:var(--ink);cursor:pointer}
+  .learn-chain button:hover{border-color:var(--acid);color:var(--acid)}
   .compare-card{border-top:3px solid var(--accent,var(--line))}
   .partbtn{border-left:3px solid var(--accent,var(--line))}
   .bnode{border-left:3px solid var(--accent,var(--line))}
