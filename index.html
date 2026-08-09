@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#07111f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="AI Arsenal Atlas" />
+<title>AI Arsenal Atlas — V1</title>
+<link rel="stylesheet" href="./styles.css" />
+
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><div class="brandmark">A²</div><div><b>AI ARSENAL ATLAS</b><small>Visual homelab reference universe · V1</small></div></div>
+    <div class="world-switch" role="group" aria-label="World mode">
+      <button data-world="my">🏠 MY LAB</button><button class="active" data-world="reference">🌐 REFERENCE</button><button data-world="upgrade">⚡ UPGRADE</button>
+    </div>
+    <div class="search"><input id="searchInput" aria-label="Search the atlas" placeholder="Search MCP, Ollama, 'run LLM locally'…"/><button id="searchBtn" aria-label="Search">⌕</button></div>
+    <div class="top-actions"><button class="iconbtn" id="backBtn" aria-label="Go back">←</button><button class="iconbtn" id="homeBtn" aria-label="Return home">⌂</button><button class="iconbtn" id="helpBtn" aria-label="Show tutorial">?</button></div>
+  </header>
+
+  <main class="workspace">
+    <section class="map-wrap" id="mapWrap" aria-label="Interactive AI homelab map">
+      <div class="hud-left"><div class="hudbox zoomrow"><button id="zoomOut" aria-label="Zoom out">−</button><span id="zoomLabel">Z1 DISTRICT</span><button id="zoomIn" aria-label="Zoom in">+</button></div></div>
+      <div class="crumbs" id="crumbs">WORLD › <b>REFERENCE LAB</b></div>
+      <div class="statuskey" id="statusKey"></div>
+      <svg id="worldSvg" viewBox="0 0 1600 900" role="img" aria-labelledby="mapTitle mapDesc">
+        <title id="mapTitle">AI Arsenal Atlas reference map</title><desc id="mapDesc">A stable spatial map of cloud, network, control, compute, AI, agents, data, development, operations and edge systems.</desc>
+        <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#29405a"/></marker><marker id="arrowActive" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#dffe02"/></marker></defs>
+        <g id="viewport"><g id="edgesLayer"></g><g id="trustLayer"></g><g id="districtLayer"></g><g id="nodesLayer"></g><g id="effectsLayer"></g></g>
+      </svg>
+      <div class="minimap" aria-hidden="true"><svg viewBox="0 0 1600 900"><rect x="8" y="8" width="1584" height="884" rx="18" fill="#07111f" stroke="#29405a"/><g id="miniLayer"></g><rect id="miniViewport" class="mini-viewport" x="170" y="120" width="1260" height="650" rx="16"/></svg></div>
+      <div class="toast" id="toast" aria-live="polite"></div>
+    </section>
+
+    <aside class="inspector" id="inspector" aria-label="Selected concept details">
+      <div class="ins-head"><div class="eyebrow" id="insEyebrow">START HERE</div><div class="titleline"><div class="bigicon" id="insIcon">🗺️</div><div><h2 id="insTitle">The Whole Lab</h2><small id="insPath">World view · stable geography</small></div></div></div>
+      <div class="ins-body" id="insBody"></div>
+      <div class="actionrail" id="actionRail"></div>
+    </aside>
+  </main>
+
+  <footer class="bottom" aria-label="Map lenses and mission controls">
+    <button class="lens active" data-lens="physical">🏠 PHYSICAL</button><button class="lens" data-lens="ai">🧠 AI</button><button class="lens" data-lens="network">🌐 NETWORK</button><button class="lens" data-lens="data">📦 DATA</button><button class="lens" data-lens="security">🔐 SECURITY</button><button class="lens" data-lens="mission">🎯 MISSION</button>
+    <button class="lens" id="moreLens">MORE ▾</button><span class="spacer"></span>
+    <div class="mission-select"><select id="missionSelect" aria-label="Choose mission"></select><button id="missionPlay" aria-label="Play mission">▶</button></div>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal"><div class="modal-head"><h2 id="modalTitle">Panel</h2><button id="modalClose" aria-label="Close">×</button></div><div class="modal-body" id="modalBody"></div></div></div>
+
+<div class="tutorial" id="tutorial" role="dialog" aria-modal="true" aria-labelledby="tTitle">
+  <div class="tcard">
+    <div class="tstep active"><div class="tbig">🌍</div><h1 id="tTitle">This is one permanent world.</h1><p>Hardware, software, AI, data and cloud systems keep stable locations. Switch lenses to ask different questions without losing your mental map.</p></div>
+    <div class="tstep"><div class="tbig">👆</div><h1>Click anything.</h1><p>Every first click answers six things: what it is, why it exists, where it lives, what enters, what leaves, and what it unlocks.</p></div>
+    <div class="tstep"><div class="tbig">🔭</div><h1>Zoom changes meaning.</h1><p>Z0 shows the universe. Z1 shows districts. Z2 exposes concepts. Z3 exposes real implementations. Z4–Z5 open mechanisms and engineering detail.</p></div>
+    <div class="tstep"><div class="tbig">▶️</div><h1>Use “Show Me”.</h1><p>Static definitions are secondary. Important concepts animate one real mechanism so you can understand by watching information move.</p></div>
+    <div class="tstep"><div class="tbig">🧩</div><h1>Build systems, not vocabulary lists.</h1><p>Builder, Compare, Missions and Learning mode connect concepts into practical architectures. The goal is systems thinking.</p></div>
+    <div class="tnav"><button type="button" id="tSkip">Skip</button><span id="tCount" style="color:var(--muted);font-size:12px">1 / 5</span><button type="button" class="next" id="tNext">Next →</button></div>
+  </div>
+</div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>
