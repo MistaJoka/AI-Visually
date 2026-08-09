@@ -101,6 +101,32 @@
   const svg=$('#worldSvg'), viewport=$('#viewport'), districtLayer=$('#districtLayer'), nodesLayer=$('#nodesLayer'), edgesLayer=$('#edgesLayer'), effectsLayer=$('#effectsLayer'), trustLayer=$('#trustLayer');
   const statusKey=$('#statusKey'), inspector=$('#inspector');
   function svgEl(tag,attrs={}){const e=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));return e}
+  function districtDecor(d,g){
+    const cx=d.x+d.w/2,cy=d.y+d.h/2,pad=10;
+    if(d.id==='ops'){
+      const maxR=Math.min(d.w,d.h)/2-pad;
+      [.9,.6,.32].forEach(f=>g.appendChild(svgEl('circle',{cx,cy,r:maxR*f,class:'ops-ring','pointer-events':'none'})));
+      g.appendChild(svgEl('line',{x1:cx,y1:cy,x2:cx,y2:cy-maxR,class:'radar-sweep','pointer-events':'none'}));
+    } else if(d.id==='cloud'){
+      const rx=d.w/2-pad,ry=d.h/2-pad*1.6;
+      g.appendChild(svgEl('path',{d:`M ${cx-rx} ${cy} A ${rx} ${ry} 0 1 1 ${cx+rx} ${cy}`,class:'orbit-arc','pointer-events':'none'}));
+    } else if(d.id==='control'){
+      ['#ff5d73','#ff9f43','#40e68b'].forEach((c,i)=>g.appendChild(svgEl('circle',{cx:d.x+16+i*14,cy:d.y+16,r:4,fill:c,opacity:.5,'pointer-events':'none'})));
+    } else if(d.id==='compute'){
+      g.appendChild(svgEl('rect',{x:d.x,y:d.y,width:d.w,height:d.h,rx:22,fill:'url(#thermalGradient)',opacity:.07,'pointer-events':'none'}));
+      [[d.x+10,d.y+10],[d.x+d.w-10,d.y+10],[d.x+10,d.y+d.h-10],[d.x+d.w-10,d.y+d.h-10]].forEach(([x,y])=>g.appendChild(svgEl('circle',{cx:x,cy:y,r:3,class:'rivet','pointer-events':'none'})));
+    } else if(d.id==='data'){
+      [10,20].forEach(inset=>g.appendChild(svgEl('rect',{x:d.x+inset,y:d.y+inset,width:d.w-inset*2,height:d.h-inset*2,rx:14,class:'vault-ring','pointer-events':'none'})));
+    } else if(d.id==='agent'){
+      const L=16;
+      [[d.x+8,d.y+8,1,1],[d.x+d.w-8,d.y+8,-1,1],[d.x+8,d.y+d.h-8,1,-1],[d.x+d.w-8,d.y+d.h-8,-1,-1]].forEach(([x,y,sx,sy])=>g.appendChild(svgEl('path',{d:`M ${x} ${y+L*sy} V ${y} H ${x+L*sx}`,class:'reticle','pointer-events':'none'})));
+    } else if(d.id==='dev'){
+      const L=7;
+      [[d.x+10,d.y+10],[d.x+d.w-10,d.y+10],[d.x+10,d.y+d.h-10],[d.x+d.w-10,d.y+d.h-10]].forEach(([x,y])=>g.appendChild(svgEl('path',{d:`M ${x-L} ${y} H ${x+L} M ${x} ${y-L} V ${y+L}`,class:'cropmark','pointer-events':'none'})));
+    } else if(d.id==='edge'){
+      g.appendChild(svgEl('rect',{x:d.x+8,y:d.y+8,width:d.w-16,height:d.h-16,rx:16,class:'fence','pointer-events':'none'}));
+    }
+  }
   function districtCenter(id){const d=districtById[id];return d?{x:d.x+d.w/2,y:d.y+d.h/2}:{x:800,y:450}}
   function nodeCenter(id){const n=byId[id];if(n)return{x:n.x+n.w/2,y:n.y+n.h/2}; if(districtById[id])return districtCenter(id); return{x:800,y:450}}
   function renderMini(){const mini=$('#miniLayer');mini.innerHTML='';districts.forEach(d=>{const r=svgEl('rect',{x:d.x,y:d.y,width:d.w,height:d.h,rx:18,fill:'#0e1b2e',stroke:COLORS[d.id]||'#29405a','stroke-width':5,opacity:.85});mini.appendChild(r)})}
@@ -109,25 +135,29 @@
   function renderMap(){
     districtLayer.innerHTML='';nodesLayer.innerHTML='';edgesLayer.innerHTML='';effectsLayer.innerHTML='';trustLayer.innerHTML='';
     if(state.lens==='security'){const b=svgEl('rect',{x:45,y:375,width:1465,height:485,rx:35,class:'trust-boundary'});trustLayer.appendChild(b);const t=svgEl('text',{x:65,y:875,class:'zone-label'});t.textContent='LOCAL TRUST ZONE · TRAFFIC CROSSING THIS BOUNDARY DESERVES ATTENTION';trustLayer.appendChild(t)}
-    edges.forEach(e=>{const a=nodeCenter(e.a),b=nodeCenter(e.b);const dPath=`M ${a.x} ${a.y} C ${(a.x+b.x)/2} ${a.y}, ${(a.x+b.x)/2} ${b.y}, ${b.x} ${b.y}`; const path=svgEl('path',{d:dPath,class:`edge ${e.type}`,'data-edge':e.id,markerEnd:'url(#arrow)'}); if(state.highlightPath.includes(e.a)&&state.highlightPath.includes(e.b)){path.classList.add('active');path.setAttribute('marker-end','url(#arrowActive)')} if(state.trace&&state.selected&&(e.a===state.selected||e.b===state.selected)){path.classList.add('active');path.setAttribute('marker-end','url(#arrowActive)')} edgesLayer.appendChild(path); const hit=svgEl('path',{d:dPath,class:'edge-hit',tabindex:'0',role:'button','aria-label':`${e.type}: ${byId[e.a]?.name||e.a} to ${byId[e.b]?.name||e.b}`}); hit.addEventListener('click',()=>selectEdge(e.id));hit.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();selectEdge(e.id)}}); edgesLayer.appendChild(hit)});
+    edges.forEach(e=>{const a=nodeCenter(e.a),b=nodeCenter(e.b);const dPath=`M ${a.x} ${a.y} C ${(a.x+b.x)/2} ${a.y}, ${(a.x+b.x)/2} ${b.y}, ${b.x} ${b.y}`; const crossing=byId[e.a]?.district!==byId[e.b]?.district; const path=svgEl('path',{d:dPath,class:`edge ${e.type}${crossing?' crossing':''}`,'data-edge':e.id,markerEnd:'url(#arrow)'}); if(state.highlightPath.includes(e.a)&&state.highlightPath.includes(e.b)){path.classList.add('active');path.setAttribute('marker-end','url(#arrowActive)')} if(state.trace&&state.selected&&(e.a===state.selected||e.b===state.selected)){path.classList.add('active');path.setAttribute('marker-end','url(#arrowActive)')} edgesLayer.appendChild(path); const hit=svgEl('path',{d:dPath,class:'edge-hit',tabindex:'0',role:'button','aria-label':`${e.type}: ${byId[e.a]?.name||e.a} to ${byId[e.b]?.name||e.b}`}); hit.addEventListener('click',()=>selectEdge(e.id));hit.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();selectEdge(e.id)}}); edgesLayer.appendChild(hit)});
     districts.forEach(d=>{
-      const g=svgEl('g',{class:'district','data-id':d.id,tabindex:'0',role:'button','aria-label':`${d.name}: ${d.sub}`});
+      const g=svgEl('g',{class:`district district-${d.id}`,'data-id':d.id,tabindex:'0',role:'button','aria-label':`${d.name}: ${d.sub}`});
+      g.style.setProperty('--accent',COLORS[d.id]||'#29405a');
       if(state.selected===d.id)g.classList.add('highlight');
       if(state.focus&&state.selected&&state.selected!==d.id&&byId[state.selected]?.district!==d.id)g.classList.add('focusdim');
       if(state.depth>0 && state.selected!==d.id && !visibleForLens({...d,district:d.id,tags:d.tags}))g.classList.add('dim');
-      const r=svgEl('rect',{x:d.x,y:d.y,width:d.w,height:d.h});r.style.stroke=COLORS[d.id]||'#29405a'; if(state.depth===0)r.style.strokeWidth='4';g.appendChild(r);
+      const r=svgEl('rect',{x:d.x,y:d.y,width:d.w,height:d.h,class:'dbase'}); if(state.depth===0)r.style.strokeWidth='4';g.appendChild(r);
+      const tex=svgEl('rect',{x:d.x,y:d.y,width:d.w,height:d.h,rx:22,class:'dtex','pointer-events':'none'});g.appendChild(tex);
+      districtDecor(d,g);
       const ti=svgEl('text',{x:d.x+22,y:d.y+40,class:'dicon'});ti.textContent=d.icon;g.appendChild(ti);
       const tn=svgEl('text',{x:d.x+65,y:d.y+35,class:'dname'});tn.textContent=d.name;g.appendChild(tn);
       const ts=svgEl('text',{x:d.x+65,y:d.y+55,class:'dsub'});ts.textContent=d.sub;g.appendChild(ts);
       g.addEventListener('click',()=>select(d.id));g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();select(d.id)}});districtLayer.appendChild(g)
     });
     if(state.depth>=2){nodes.forEach(n=>{
-      const g=svgEl('g',{class:'node','data-id':n.id,tabindex:'0',role:'button','aria-label':`${n.name}: ${n.role}`});
+      const g=svgEl('g',{class:'node','data-id':n.id,'data-district':n.district,tabindex:'0',role:'button','aria-label':`${n.name}: ${n.role}`});
       const s=statusFor(n.id); if(state.world!=='reference')g.classList.add(s); if(state.selected===n.id)g.classList.add('selected');
       if(n.id!==state.selected && !visibleForLens(n)&&state.lens!=='mission')g.classList.add('dim');
       if(state.lens==='mission'&&state.highlightPath.length&&n.id!==state.selected&&!state.highlightPath.includes(n.id))g.classList.add('dim');
       if(state.focus&&state.selected&&n.id!==state.selected&&!isNeighbor(state.selected,n.id))g.classList.add('focusdim');
       const r=svgEl('rect',{x:n.x,y:n.y,width:n.w,height:n.h});g.appendChild(r);
+      const catBar=svgEl('rect',{x:n.x,y:n.y,width:n.w,height:3,rx:1.5,class:'ncat'});catBar.style.fill=COLORS[n.district]||'#29405a';catBar.style.opacity='.55';g.appendChild(catBar);
       const ic=svgEl('text',{x:n.x+10,y:n.y+25,class:'nicon'});ic.textContent=n.icon;g.appendChild(ic);
       const nm=svgEl('text',{x:n.x+35,y:n.y+23,class:'nname'});nm.textContent=n.name.length>22?n.name.slice(0,21)+'…':n.name;g.appendChild(nm);
       if(state.depth>=3){const rr=svgEl('text',{x:n.x+10,y:n.y+36,class:'nrole'});rr.textContent=n.role;g.appendChild(rr);}
