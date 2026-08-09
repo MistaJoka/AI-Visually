@@ -99,6 +99,8 @@
   .node[data-district="edge"] rect{fill:#1c150c}
   .node[data-district="control"] text{font-family:var(--mono)}
   .edge.crossing{opacity:.6;stroke-width:2.5}
+  a.chip{color:var(--cyan);text-decoration:none;display:inline-block}
+  a.chip:hover{border-color:var(--cyan)}
   button.chip{background:#0e1d31;color:var(--ink);cursor:pointer;text-align:left}
   button.chip:hover{border-color:var(--acid);color:var(--acid)}
   .crumbs button{background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}

@@ -17,7 +17,8 @@ After GitHub Pages is enabled for this repository, the project site will be:
 - Search-to-concept navigation
 - Clickable relationships
 - Focus, Trace, Show Me, X-Ray, Compare, Build With, and Learn actions
-- 10 architecture mission playbacks
+- 13 guided mission playbacks, each ending in a "what you need" tool list with official sources
+- Training territory: fine-tuning/LoRA, quantization, multimodal, prompt engineering, and evals
 - Interactive system builder
 - Mobile bottom-sheet inspector
 - iPhone-safe tutorial controls and safe-area handling

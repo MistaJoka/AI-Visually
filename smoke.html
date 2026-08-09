@@ -74,6 +74,8 @@ frame.addEventListener('load', async () => {
     report('Z3 renders implementation chips', d.querySelectorAll('.impl').length > 10, `got ${d.querySelectorAll('.impl').length}`);
     report('Nodes carry district tint hook', !!d.querySelector('.node[data-district]'));
     report('Crossing edges detected', d.querySelectorAll('.edge.crossing').length > 5);
+    report('AI training territory present', !!d.querySelector('.node[data-id="finetune"]') && !!d.querySelector('.node[data-id="quant"]') && !!d.querySelector('.node[data-id="evals"]'));
+    report('Edge density ≥ 60', d.querySelectorAll('.edge').length >= 60, `got ${d.querySelectorAll('.edge').length}`);
 
     click(d.querySelector('.impl'));
     await sleep(150);
@@ -119,16 +121,19 @@ frame.addEventListener('load', async () => {
     await sleep(200);
     report('Try-this search chip navigates', (d.getElementById('insTitle')?.textContent || '').includes('MCP'), `got "${d.getElementById('insTitle')?.textContent}"`);
 
-    // Mission playback from the welcome on-ramp
+    // Mission playback from the welcome on-ramp, through to the completion summary
     d.getElementById('homeBtn').click();
     await sleep(150);
-    report('12 missions available', d.getElementById('missionSelect')?.options.length === 12, `got ${d.getElementById('missionSelect')?.options.length}`);
+    report('13 missions available', d.getElementById('missionSelect')?.options.length === 13, `got ${d.getElementById('missionSelect')?.options.length}`);
     click(d.querySelector('#insBody button[data-go-mission="rag"]'));
     await sleep(2600);
     report('Mission chip starts playback', d.querySelectorAll('.packet').length > 0);
     const dataDistrict = d.querySelector('.district-data');
     report('Mission keeps path districts visible (dim-fix)', dataDistrict && !dataDistrict.classList.contains('dim'));
-    d.getElementById('missionPlay').click();
+    await sleep(6200); // rag mission completes at ~7.7s total
+    report('Mission completion opens shopping list', d.getElementById('overlay')?.classList.contains('open') && (d.getElementById('modalTitle')?.textContent || '').startsWith('🏁'), `title "${d.getElementById('modalTitle')?.textContent}"`);
+    report('Shopping list links official sources', d.querySelectorAll('#modalBody a.chip[href^="https"]').length >= 5, `got ${d.querySelectorAll('#modalBody a.chip[href^="https"]').length}`);
+    d.getElementById('modalClose')?.click();
     d.getElementById('homeBtn').click();
 
     report('No JS errors during run', errors.length === 0, errors.join('; '));
