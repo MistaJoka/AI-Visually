@@ -1,6 +1,6 @@
 # AI Arsenal Atlas
 
-A visual-first, interactive reference map for understanding how modern AI, homelab infrastructure, software engineering, agents, networking, data systems, security, and deployment fit together.
+A visual-first, interactive reference map of modern AI — models, training, inference, agents, and knowledge systems — plus the compact supporting context AI actually needs (compute, shipping, secrets, gateways). AI-first by design: six AI territories occupy the map's heart, infrastructure is a supporting strip.
 
 ## Live site
 
@@ -8,9 +8,9 @@ After GitHub Pages is enabled for this repository, the project site will be:
 
 `https://mistajoka.github.io/AI-Visually/`
 
-## What V1 includes
+## What the atlas includes
 
-- Stable top-down homelab world map
+- Stable AI-first world map: six AI territories over a two-district supporting-context strip
 - Semantic zoom from world → district → concept → implementation → mechanism → engineering
 - Single reference view — the atlas is pure reference material
 - Physical, AI, Network, Data, Security, Mission, Software, Performance, Cost, and Learning lenses
@@ -20,7 +20,7 @@ After GitHub Pages is enabled for this repository, the project site will be:
 - A personal layer: pin concepts, write local notes, and draw your own links — stored only in your browser (localStorage)
 - Clickable relationships
 - Focus, Trace, Show Me, X-Ray, Compare, Build With, and Learn actions
-- 13 guided mission playbacks, each ending in a "what you need" tool list with official sources
+- 10 guided mission playbacks, each ending in a "what you need" tool list with official sources
 - Training territory: fine-tuning/LoRA, quantization, multimodal, prompt engineering, and evals
 - Interactive system builder
 - Mobile bottom-sheet inspector

@@ -52,16 +52,16 @@ frame.addEventListener('load', async () => {
     await sleep(150);
     report('Tutorial skippable', !!d.querySelector('.tutorial.hidden'));
 
-    report('10 districts render', d.querySelectorAll('.district').length === 10, `got ${d.querySelectorAll('.district').length}`);
-    report('8 texture patterns defined', d.querySelectorAll('defs pattern').length === 8);
+    report('9 districts render', d.querySelectorAll('.district').length === 9, `got ${d.querySelectorAll('.district').length}`);
+    report('7 texture patterns defined', d.querySelectorAll('defs pattern').length === 7);
     report('World-switch fully removed', !d.querySelector('.world-switch'));
     report('ALL lens injected by view-defaults', !!d.getElementById('allLens'));
 
     // Enterable districts: click at Z1 → auto-zoom to Z2 + camera centers
     report('Starts at Z1', d.getElementById('zoomLabel').textContent === 'Z1 DISTRICT');
-    click(d.querySelector('.district-ai'));
+    click(d.querySelector('.district-forge'));
     await sleep(150);
-    report('District click updates inspector', d.getElementById('insTitle')?.textContent === 'AI Reactor');
+    report('District click updates inspector', d.getElementById('insTitle')?.textContent === 'Model Forge');
     report('District click enters Z2', d.getElementById('zoomLabel').textContent === 'Z2 CONCEPT');
     report('District click centers camera', (d.getElementById('viewport').getAttribute('transform') || '').includes('translate') && !(d.getElementById('viewport').getAttribute('transform') || '').startsWith('translate(0 0)'));
 
@@ -76,7 +76,7 @@ frame.addEventListener('load', async () => {
     report('Nodes carry district tint hook', !!d.querySelector('.node[data-district]'));
     report('Crossing edges detected', d.querySelectorAll('.edge.crossing').length > 5);
     report('AI training territory present', !!d.querySelector('.node[data-id="finetune"]') && !!d.querySelector('.node[data-id="quant"]') && !!d.querySelector('.node[data-id="evals"]'));
-    report('Edge density ≥ 60', d.querySelectorAll('.edge').length >= 60, `got ${d.querySelectorAll('.edge').length}`);
+    report('Edge density ≥ 45', d.querySelectorAll('.edge').length >= 45, `got ${d.querySelectorAll('.edge').length}`);
 
     click(d.querySelector('.impl'));
     await sleep(150);
@@ -94,7 +94,7 @@ frame.addEventListener('load', async () => {
     report('Breadcrumb district is clickable', !!crumbDistrict);
     click(crumbDistrict);
     await sleep(150);
-    report('Breadcrumb navigates to district', d.getElementById('insTitle')?.textContent === 'AI Reactor');
+    report('Breadcrumb navigates to district', d.getElementById('insTitle')?.textContent === 'Inference Works');
     click(d.querySelector('#crumbs button[data-crumb-home]'));
     await sleep(150);
     report('Breadcrumb home returns to welcome', d.getElementById('insTitle')?.textContent === 'The Whole Lab');
@@ -125,11 +125,11 @@ frame.addEventListener('load', async () => {
     // Mission playback from the welcome on-ramp, through to the completion summary
     d.getElementById('homeBtn').click();
     await sleep(150);
-    report('13 missions available', d.getElementById('missionSelect')?.options.length === 13, `got ${d.getElementById('missionSelect')?.options.length}`);
+    report('10 missions available', d.getElementById('missionSelect')?.options.length === 10, `got ${d.getElementById('missionSelect')?.options.length}`);
     click(d.querySelector('#insBody button[data-go-mission="rag"]'));
     await sleep(2600);
     report('Mission chip starts playback', d.querySelectorAll('.packet').length > 0);
-    const dataDistrict = d.querySelector('.district-data');
+    const dataDistrict = d.querySelector('.district-knowledge');
     report('Mission keeps path districts visible (dim-fix)', dataDistrict && !dataDistrict.classList.contains('dim'));
     await sleep(6200); // rag mission completes at ~7.7s total
     report('Mission completion opens shopping list', d.getElementById('overlay')?.classList.contains('open') && (d.getElementById('modalTitle')?.textContent || '').startsWith('🏁'), `title "${d.getElementById('modalTitle')?.textContent}"`);
@@ -140,15 +140,15 @@ frame.addEventListener('load', async () => {
     // Deep links: hash write, hash apply, browser back
     d.getElementById('homeBtn').click();
     await sleep(200);
-    click(d.querySelector('.district-ai'));
+    click(d.querySelector('.district-forge'));
     await sleep(250);
-    report('Selecting a district writes the URL hash', w.location.hash === '#d/ai', `got "${w.location.hash}"`);
+    report('Selecting a district writes the URL hash', w.location.hash === '#d/forge', `got "${w.location.hash}"`);
     w.location.hash = '#c/mcp';
     await sleep(300);
     report('Deep link navigates to concept', d.getElementById('insTitle')?.textContent === 'MCP Interface', `got "${d.getElementById('insTitle')?.textContent}"`);
     w.history.back();
     await sleep(400);
-    report('Browser back restores prior state', d.getElementById('insTitle')?.textContent === 'AI Reactor', `got "${d.getElementById('insTitle')?.textContent}"`);
+    report('Browser back restores prior state', d.getElementById('insTitle')?.textContent === 'Model Forge', `got "${d.getElementById('insTitle')?.textContent}"`);
 
     // Search autocomplete
     d.getElementById('homeBtn').click();

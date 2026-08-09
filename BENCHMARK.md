@@ -142,4 +142,4 @@ explicit: name the axis, name the level you're buying.
 4. Update the scorecard table and date this file in the same commit as the change that moved
    a score.
 
-Last scored: 2026-08-09 (post "personal layer" round — axis 6 moved 0.5 → 3).
+Last scored: 2026-08-09 (post AI-first restructure: 9 districts — 6 AI territories + reserved Proving Grounds + 2-district context strip; 43 concepts, 50 edges, 10 missions; homelab-only content removed. Scores unchanged — the restructure moved scope, not capability; axis 2 flow coverage improved since cut concepts were largely mission-unreachable).

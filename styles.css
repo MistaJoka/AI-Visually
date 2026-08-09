@@ -66,14 +66,13 @@
   /* Per-district dimensions */
   .district .dbase{stroke:var(--accent)}
   .dtex{fill:none;stroke:none;pointer-events:none}
-  .district-cloud .dtex{fill:url(#tex-cloud)}
-  .district-network .dtex{fill:url(#tex-network)}
-  .district-control .dtex{fill:url(#tex-control)}
-  .district-compute .dtex{fill:url(#tex-compute)}
-  .district-ai .dtex{fill:url(#tex-ai)}
+  .district-cloudx .dtex{fill:url(#tex-cloud)}
+    .district-iface .dtex{fill:url(#tex-control)}
+  .district-serving .dtex{fill:url(#tex-compute)}
+  .district-forge .dtex{fill:url(#tex-ai)}
   .district-agent .dtex{fill:url(#tex-agent)}
-  .district-data .dtex{fill:url(#tex-data)}
-  .district-dev .dtex{fill:url(#tex-dev)}
+  .district-knowledge .dtex{fill:url(#tex-data)}
+  .district-foundation .dtex{fill:url(#tex-dev)}
   .ops-ring{fill:none;stroke:var(--accent);stroke-width:1;opacity:.3}
   .orbit-arc{fill:none;stroke:var(--accent);stroke-width:1;stroke-dasharray:4 6;opacity:.4}
   .rivet{fill:var(--accent);opacity:.35}
@@ -81,23 +80,21 @@
   .reticle{fill:none;stroke:var(--accent);stroke-width:2;opacity:.6}
   .cropmark{fill:none;stroke:var(--accent);stroke-width:1;opacity:.45}
   .fence{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:5 5;opacity:.4}
-  .district-control .dname,.district-control .dsub{font-family:var(--mono)}
+  .district-iface .dname,.district-iface .dsub{font-family:var(--mono)}
   @keyframes breathe{0%,100%{filter:drop-shadow(0 0 2px rgba(155,108,255,.25))}50%{filter:drop-shadow(0 0 10px rgba(155,108,255,.55))}}
-  .district-ai{animation:breathe 4.5s ease-in-out infinite}
+  .district-forge{animation:breathe 4.5s ease-in-out infinite}
   @keyframes radarspin{to{transform:rotate(360deg)}}
   .radar-sweep{stroke:var(--accent);stroke-width:1.5;opacity:.55;transform-origin:center;transform-box:fill-box;animation:radarspin 9s linear infinite}
   /* Node category tint — each node carries its district's dimension */
-  .node[data-district="cloud"] rect{fill:#0d1620}
-  .node[data-district="network"] rect{fill:#0a1a2e}
-  .node[data-district="control"] rect{fill:#08211f}
-  .node[data-district="compute"] rect{fill:#1a1710}
-  .node[data-district="ai"] rect{fill:#150e26}
+  .node[data-district="cloudx"] rect{fill:#0d1620}
+    .node[data-district="iface"] rect{fill:#08211f}
+  .node[data-district="serving"] rect{fill:#1a1710}
+  .node[data-district="forge"] rect{fill:#150e26}
   .node[data-district="agent"] rect{fill:#1a1c0d}
-  .node[data-district="data"] rect{fill:#0a1f16}
-  .node[data-district="dev"] rect{fill:#0a1524}
-  .node[data-district="ops"] rect{fill:#200f14}
-  .node[data-district="edge"] rect{fill:#1c150c}
-  .node[data-district="control"] text{font-family:var(--mono)}
+  .node[data-district="knowledge"] rect{fill:#0a1f16}
+  .node[data-district="foundation"] rect{fill:#0d141c}
+  .node[data-district="shipyard"] rect{fill:#200f14}
+    .node[data-district="iface"] text{font-family:var(--mono)}
   .edge.crossing{opacity:.6;stroke-width:2.5}
   .search-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:60;background:rgba(7,17,31,.97);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);backdrop-filter:blur(10px);overflow:hidden;padding:5px}
   .search-menu button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--ink);text-align:left;padding:9px 11px;border-radius:9px;font-size:13px;cursor:pointer}
@@ -126,7 +123,7 @@
   .zoomrow span{min-width:64px}
   @media(max-width:560px){
     .dtex{opacity:.5}
-    .district-ai{animation:none}
+    .district-forge{animation:none}
     .radar-sweep{animation:none}
   }
   @media(max-width:900px){
