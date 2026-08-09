@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atlas Smoke Test</title>
+<style>
+  body{margin:0;background:#07111f;color:#f4f8ff;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;padding:18px}
+  h1{font-size:16px}
+  .pass{color:#40e68b}.fail{color:#ff5d73}.info{color:#9bb0c8}
+  li{margin:4px 0}
+  #summary{font-size:15px;font-weight:bold;margin:12px 0;padding:10px;border-radius:8px;border:1px solid #29405a}
+  iframe{width:1280px;height:800px;border:1px solid #29405a;border-radius:8px;opacity:.4}
+</style>
+</head>
+<body>
+<h1>AI Arsenal Atlas — smoke test</h1>
+<p class="info">Zero-dependency harness. Serve the repo (<code>python3 -m http.server</code>) and open <code>/smoke.html</code>. The app loads in the iframe below and core flows are driven automatically.</p>
+<div id="summary">Running…</div>
+<ul id="results"></ul>
+<iframe id="app" src="./index.html"></iframe>
+<script>
+const results = [];
+const errors = [];
+const ul = document.getElementById('results');
+function report(name, ok, detail){
+  results.push(ok);
+  const li = document.createElement('li');
+  li.className = ok ? 'pass' : 'fail';
+  li.textContent = `${ok ? 'PASS' : 'FAIL'} · ${name}${detail ? ' — ' + detail : ''}`;
+  ul.appendChild(li);
+}
+function done(){
+  const fails = results.filter(r => !r).length;
+  const s = document.getElementById('summary');
+  s.textContent = fails === 0 ? `✅ ALL ${results.length} CHECKS PASSED` : `❌ ${fails} / ${results.length} CHECKS FAILED`;
+  s.style.borderColor = fails === 0 ? '#40e68b' : '#ff5d73';
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const frame = document.getElementById('app');
+frame.addEventListener('load', async () => {
+  const w = frame.contentWindow, d = frame.contentDocument;
+  w.addEventListener('error', e => errors.push(e.message));
+  try {
+    await sleep(400);
+
+    report('Tutorial shows on load', !!d.querySelector('.tutorial:not(.hidden)'));
+    d.getElementById('tSkip')?.click();
+    await sleep(150);
+    report('Tutorial skippable', !!d.querySelector('.tutorial.hidden'));
+
+    report('10 districts render', d.querySelectorAll('.district').length === 10, `got ${d.querySelectorAll('.district').length}`);
+    report('8 texture patterns defined', d.querySelectorAll('defs pattern').length === 8);
+    report('World-switch fully removed', !d.querySelector('.world-switch'));
+    report('ALL lens injected by view-defaults', !!d.getElementById('allLens'));
+
+    d.querySelector('.district-ai')?.dispatchEvent(new w.MouseEvent('click', {bubbles: true}));
+    await sleep(150);
+    report('District click updates inspector', d.getElementById('insTitle')?.textContent === 'AI Reactor');
+
+    d.getElementById('zoomIn').click(); d.getElementById('zoomIn').click();
+    await sleep(200);
+    report('Z3 renders nodes', d.querySelectorAll('.node').length > 30, `got ${d.querySelectorAll('.node').length}`);
+    report('Z3 renders implementation chips', d.querySelectorAll('.impl').length > 10, `got ${d.querySelectorAll('.impl').length}`);
+    report('Nodes carry district tint hook', !!d.querySelector('.node[data-district]'));
+    report('Crossing edges detected', d.querySelectorAll('.edge.crossing').length > 5);
+
+    d.querySelector('.impl')?.dispatchEvent(new w.MouseEvent('click', {bubbles: true}));
+    await sleep(150);
+    report('Implementation chip opens Compare', d.getElementById('overlay')?.classList.contains('open'));
+    report('Compare cards carry district accent', !!d.querySelector('.compare-grid')?.style.getPropertyValue('--accent'));
+    d.getElementById('modalClose')?.click();
+
+    const input = d.getElementById('searchInput');
+    input.value = 'run llm locally';
+    d.getElementById('searchBtn').click();
+    await sleep(200);
+    report('Search resolves to concept', d.getElementById('insTitle')?.textContent === 'Model Server / API', `got "${d.getElementById('insTitle')?.textContent}"`);
+
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+    const sel = d.getElementById('missionSelect');
+    report('12 missions available', sel?.options.length === 12, `got ${sel?.options.length}`);
+    sel.value = 'rag';
+    d.getElementById('missionPlay').click();
+    await sleep(2600);
+    report('Mission playback animates packets', d.querySelectorAll('.packet').length > 0);
+    const dataDistrict = d.querySelector('.district-data');
+    report('Mission keeps path districts visible (dim-fix)', dataDistrict && !dataDistrict.classList.contains('dim'));
+    d.getElementById('missionPlay').click();
+    d.getElementById('homeBtn').click();
+
+    report('No JS errors during run', errors.length === 0, errors.join('; '));
+  } catch (e) {
+    report('Harness completed without exception', false, e.message);
+  }
+  done();
+});
+</script>
+</body>
+</html>

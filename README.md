@@ -12,7 +12,7 @@ After GitHub Pages is enabled for this repository, the project site will be:
 
 - Stable top-down homelab world map
 - Semantic zoom from world → district → concept → implementation → mechanism → engineering
-- My Lab / Reference / Upgrade views
+- Single reference view — the atlas is pure reference material
 - Physical, AI, Network, Data, Security, Mission, Software, Performance, Cost, and Learning lenses
 - Search-to-concept navigation
 - Clickable relationships
@@ -46,6 +46,10 @@ python3 -m http.server 8000
 Then open:
 
 `http://localhost:8000`
+
+To smoke-test the core flows (loads the app in an iframe, drives clicks, asserts no console errors):
+
+`http://localhost:8000/smoke.html`
 
 Do not judge interactivity by opening `index.html` inside an attachment/document preview. The app requires JavaScript execution.
 
