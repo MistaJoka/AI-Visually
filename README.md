@@ -17,6 +17,7 @@ After GitHub Pages is enabled for this repository, the project site will be:
 - Search-to-concept navigation with autocomplete and keyboard control
 - Deep-linkable local state (`#c/mcp`, `#m/rag`, `#l/security`) with a working browser Back
 - Pinch-zoom on touch devices; free zoom snaps to the nearest semantic level
+- A personal layer: pin concepts, write local notes, and draw your own links — stored only in your browser (localStorage)
 - Clickable relationships
 - Focus, Trace, Show Me, X-Ray, Compare, Build With, and Learn actions
 - 13 guided mission playbacks, each ending in a "what you need" tool list with official sources

@@ -104,6 +104,11 @@
   .search-menu button span{margin-left:auto;color:var(--muted);font-size:11px}
   .search-menu button:hover,.search-menu button.active{background:rgba(223,254,2,.1);color:var(--acid)}
   .search-menu button:hover span,.search-menu button.active span{color:var(--acid)}
+  .mynote{width:100%;margin-top:8px;background:#07111f;border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:8px 10px;font:inherit;font-size:12px;line-height:1.4;min-height:64px;resize:vertical}
+  .mynote:focus{outline:none;border-color:var(--acid)}
+  .pinmark,.notemark{font-size:10px}
+  .notemark{fill:var(--cyan)}
+  .edge.mylink{stroke:var(--acid);stroke-width:2;stroke-dasharray:3 6;opacity:.5}
   a.chip{color:var(--cyan);text-decoration:none;display:inline-block}
   a.chip:hover{border-color:var(--cyan)}
   button.chip{background:#0e1d31;color:var(--ink);cursor:pointer;text-align:left}

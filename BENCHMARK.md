@@ -91,15 +91,14 @@ at Z0–Z1, full detail at Z2+.
 *Can the user reshape the knowledge in place — add notes, pin, connect, correct?*
 
 Measurable locally (localStorage is local-only by definition):
-- **User annotations**: notes on a concept — absent.
-- **Pinning/collections**: save a working set of concepts — absent.
-- **User-added edges/nodes**: absent.
-- **Persistence across sessions**: absent (no localStorage usage at all today).
+- **User annotations**: per-concept notes in the inspector ("My layer" section), persisted — present.
+- **Pinning/collections**: pin any concept; 📌 marker on the map + a Pinned jump list on the welcome panel — present.
+- **User-added edges**: two-click "Link to…" flow draws my-links (distinct acid-dashed class), selectable with their own inspector and removable — present. User-added *nodes*: absent.
+- **Persistence across sessions**: single `atlasUser` localStorage document (pins/notes/links), loaded at boot, saved on change — present.
 
-**Current score: 0.5** — the Builder composes concepts but is a sandbox that never touches
-the atlas, and nothing persists. This is the largest gap that is fully compatible with
-local-only. Path to 2: localStorage-backed pins + per-concept notes surfaced in the
-inspector. Path to 3: user-drawn edges rendered as a distinct "my links" visual class.
+**Current score: 3** — pins, notes, and user-drawn links all persist locally and render as
+a first-class "my layer" on the map. Path to 4: user-added nodes/concepts, editing note
+text inline on the map itself, and import/export of the personal layer as a local file.
 
 ## Axis 7 · AI-native provenance (exemplar: BONSAI)
 
@@ -126,9 +125,9 @@ implementation entry; a "sources" line on hand-written concept entries.
 | 3. Live topology | Kiali | **0** (non-goal) |
 | 4. Reactive explanation | Observable/Distill | **2** |
 | 5. Adaptive complexity | Semantic bundling | **2.5** |
-| 6. Direct manipulation | InteractiveKG | **0.5** |
+| 6. Direct manipulation | InteractiveKG | **3** |
 | 7. AI-native provenance | BONSAI | **2** |
-| **Total (excluding non-goal axis 3)** | | **12.5 / 24** |
+| **Total (excluding non-goal axis 3)** | | **15 / 24** |
 
 No single real product scores 4 on more than one or two of these axes; the composite is a
 direction, not a competitor. The scorecard's job is to make each enhancement round's target
@@ -143,4 +142,4 @@ explicit: name the axis, name the level you're buying.
 4. Update the scorecard table and date this file in the same commit as the change that moved
    a score.
 
-Last scored: 2026-08-09 (post "reach & discovery" round).
+Last scored: 2026-08-09 (post "personal layer" round — axis 6 moved 0.5 → 3).

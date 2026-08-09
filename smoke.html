@@ -20,6 +20,7 @@
 <ul id="results"></ul>
 <iframe id="app" src="./index.html"></iframe>
 <script>
+localStorage.removeItem('atlasUser'); // same-origin as the app iframe — start each run with a clean personal layer
 const results = [];
 const errors = [];
 const ul = document.getElementById('results');
@@ -178,6 +179,38 @@ frame.addEventListener('load', async () => {
     report('Pinch end snaps semantic depth', d.getElementById('zoomLabel').textContent === 'Z5 ENGINEERING', `got "${d.getElementById('zoomLabel').textContent}"`);
     d.getElementById('homeBtn').click();
     await sleep(150);
+
+    // Personal layer: pin, note, my-link lifecycle
+    w.location.hash = '#c/vector';
+    await sleep(300);
+    const pinBtn = d.querySelector('#insBody button[data-pin]');
+    report('Inspector offers My layer controls', !!pinBtn && !!d.querySelector('#insBody button[data-link-start]') && !!d.querySelector('#insBody textarea[data-note]'));
+    click(pinBtn);
+    await sleep(200);
+    report('Pin persists to localStorage', (JSON.parse(w.localStorage.getItem('atlasUser') || '{}').pins || []).includes('vector'));
+    report('Pin marker renders on node', !!d.querySelector('.node[data-id="vector"] .pinmark'));
+    const noteEl = d.querySelector('#insBody textarea[data-note]');
+    noteEl.value = 'my smoke-test note';
+    noteEl.dispatchEvent(new w.Event('input', {bubbles: true}));
+    await sleep(150);
+    report('Note persists to localStorage', (JSON.parse(w.localStorage.getItem('atlasUser') || '{}').notes || {}).vector === 'my smoke-test note');
+    click(d.querySelector('#insBody button[data-link-start]'));
+    await sleep(150);
+    click(d.querySelector('.node[data-id="retriever"]'));
+    await sleep(250);
+    report('Two-click link draws a my-link edge', d.querySelectorAll('.edge.mylink').length === 1, `got ${d.querySelectorAll('.edge.mylink').length}`);
+    report('Link persists to localStorage', (JSON.parse(w.localStorage.getItem('atlasUser') || '{}').links || []).length === 1);
+    const linkHit = [...d.querySelectorAll('.edge-hit')].find(h => (h.getAttribute('aria-label') || '').startsWith('your link'));
+    click(linkHit);
+    await sleep(200);
+    report('My-link edge opens its inspector', d.getElementById('insEyebrow')?.textContent === 'MY LINK');
+    click(d.querySelector('#insBody button[data-remove-link]'));
+    await sleep(200);
+    report('Remove link deletes edge and storage', d.querySelectorAll('.edge.mylink').length === 0 && (JSON.parse(w.localStorage.getItem('atlasUser') || '{}').links || []).length === 0);
+    d.getElementById('homeBtn').click();
+    await sleep(200);
+    report('Welcome shows pinned collection', [...d.querySelectorAll('#insBody h3')].some(h => h.textContent.includes('Pinned')) && !!d.querySelector('#insBody button[data-go-node="vector"]'));
+    w.localStorage.removeItem('atlasUser');
 
     report('No JS errors during run', errors.length === 0, errors.join('; '));
   } catch (e) {
