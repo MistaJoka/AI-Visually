@@ -99,6 +99,11 @@
   .node[data-district="edge"] rect{fill:#1c150c}
   .node[data-district="control"] text{font-family:var(--mono)}
   .edge.crossing{opacity:.6;stroke-width:2.5}
+  .search-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:60;background:rgba(7,17,31,.97);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);backdrop-filter:blur(10px);overflow:hidden;padding:5px}
+  .search-menu button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;color:var(--ink);text-align:left;padding:9px 11px;border-radius:9px;font-size:13px;cursor:pointer}
+  .search-menu button span{margin-left:auto;color:var(--muted);font-size:11px}
+  .search-menu button:hover,.search-menu button.active{background:rgba(223,254,2,.1);color:var(--acid)}
+  .search-menu button:hover span,.search-menu button.active span{color:var(--acid)}
   a.chip{color:var(--cyan);text-decoration:none;display:inline-block}
   a.chip:hover{border-color:var(--cyan)}
   button.chip{background:#0e1d31;color:var(--ink);cursor:pointer;text-align:left}

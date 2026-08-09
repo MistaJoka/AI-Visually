@@ -14,7 +14,7 @@
 <div class="app" id="app">
   <header class="topbar">
     <div class="brand"><div class="brandmark">A²</div><div><b>AI ARSENAL ATLAS</b><small>Visual homelab reference universe · V1</small></div></div>
-    <div class="search"><input id="searchInput" aria-label="Search the atlas" placeholder="Search MCP, Ollama, 'run LLM locally'…"/><button id="searchBtn" aria-label="Search">⌕</button></div>
+    <div class="search"><input id="searchInput" aria-label="Search the atlas" role="combobox" aria-expanded="false" aria-controls="searchMenu" aria-autocomplete="list" autocomplete="off" placeholder="Search MCP, Ollama, 'run LLM locally'…"/><button id="searchBtn" aria-label="Search">⌕</button><div class="search-menu" id="searchMenu" role="listbox" hidden></div></div>
     <div class="top-actions"><button class="iconbtn" id="backBtn" aria-label="Go back">←</button><button class="iconbtn" id="homeBtn" aria-label="Return home">⌂</button><button class="iconbtn" id="helpBtn" aria-label="Show tutorial">?</button></div>
   </header>
 

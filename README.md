@@ -14,7 +14,9 @@ After GitHub Pages is enabled for this repository, the project site will be:
 - Semantic zoom from world → district → concept → implementation → mechanism → engineering
 - Single reference view — the atlas is pure reference material
 - Physical, AI, Network, Data, Security, Mission, Software, Performance, Cost, and Learning lenses
-- Search-to-concept navigation
+- Search-to-concept navigation with autocomplete and keyboard control
+- Deep-linkable local state (`#c/mcp`, `#m/rag`, `#l/security`) with a working browser Back
+- Pinch-zoom on touch devices; free zoom snaps to the nearest semantic level
 - Clickable relationships
 - Focus, Trace, Show Me, X-Ray, Compare, Build With, and Learn actions
 - 13 guided mission playbacks, each ending in a "what you need" tool list with official sources
@@ -66,6 +68,12 @@ One-time GitHub setting:
 4. Save.
 
 After Pages finishes deploying, open the live URL above in Safari or Chrome on iPhone.
+
+## Measuring maturity
+
+`BENCHMARK.md` defines a seven-axis capability scorecard (ontology, model/flows, live
+topology, reactive explanation, adaptive complexity, direct manipulation, provenance)
+measured entirely locally. Re-score it in the same commit as any change that moves an axis.
 
 ## V1 reference hygiene
 

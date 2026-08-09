@@ -190,7 +190,34 @@
     statusKey.innerHTML=`<span>◉ CONCEPT</span><span>▣ implementation appears at Z3</span>`;
     $$('.bottom .lens[data-lens]').forEach(b=>{const on=b.dataset.lens===state.lens;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
     const moreIds=['software','performance','cost','learning'],moreOn=moreIds.includes(state.lens);const more=$('#moreLens');more.classList.toggle('active',moreOn);more.setAttribute('aria-pressed',String(moreOn));more.textContent=moreOn?`MORE · ${lensDefs[state.lens].label}`:'MORE ▾';
+    syncHash();
   }
+  let applyingHash=false,lastWrittenHash='',routerReady=false;
+  function syncHash(){
+    if(!routerReady||applyingHash)return;
+    let h='';
+    if(state.selected&&byId[state.selected])h=`#c/${state.selected}`;
+    else if(state.selected&&districtById[state.selected])h=`#d/${state.selected}`;
+    else if(state.missionTimer&&state.mission)h=`#m/${state.mission.id}`;
+    else if(document.documentElement.classList.contains('atlas-unfiltered'))h='';
+    else if(state.lens!=='physical')h=`#l/${state.lens}`;
+    if((location.hash||'')!==h){if(h){lastWrittenHash=h;location.hash=h}else if(location.hash){lastWrittenHash='\x00';history.pushState('',document.title,location.pathname+location.search)}}
+  }
+  function applyHash(){
+    const parts=(location.hash||'').replace(/^#/,'').split('/');
+    const kind=parts[0],id=parts[1];
+    if(!kind)return;
+    applyingHash=true;
+    try{
+      if(kind==='c'&&byId[id])select(id);
+      else if(kind==='d'&&districtById[id])select(id);
+      else if(kind==='m'&&missions.some(m=>m.id===id))startMission(id);
+      else if(kind==='l'&&id==='all')$('#allLens')?.click();
+      else if(kind==='l'&&lensDefs[id]){const b=document.querySelector(`.bottom .lens[data-lens="${id}"]`);if(b)b.click();else{stopMission(true);state.lens=id;renderMap();renderInspector()}}
+    }finally{applyingHash=false}
+  }
+  window.addEventListener('hashchange',()=>{if((location.hash||'')===lastWrittenHash){lastWrittenHash='\x00';return}applyHash()});
+  window.addEventListener('load',()=>{if(location.hash)applyHash();routerReady=true;syncHash()});
   function select(id){if(state.selected!==id||state.selectedEdge)state.history.push({selected:state.selected,selectedEdge:state.selectedEdge,depth:state.depth,lens:state.lens,panX:state.panX,panY:state.panY});state.selected=id;state.selectedEdge=null;state.focus=false;state.trace=false;state.xray=false; if(districtById[id]){if(state.depth<2)state.depth=2;state.scale=[.88,.96,1.02,1.08,1.13,1.18][state.depth];const d=districtById[id];state.panX=800-state.scale*(d.x+d.w/2);state.panY=450-state.scale*(d.y+d.h/2)} if(byId[id]&&state.depth<2)state.depth=2; renderMap();renderInspector(); if(innerWidth<900)inspector.classList.add('open')}
   function renderInspector(){
     if(state.selectedEdge){renderEdgeInspector();return}
@@ -238,14 +265,48 @@
   function openLearn(n){const step=id=>byId[id]?`<button data-go-node="${id}">${byId[id].name}</button>`:`<span>${id}</span>`;const pre=(n.prereq||[]),next=(n.next||[]);$('#modalTitle').textContent=`📚 Learning Path · ${n.name}`;$('#modalBody').innerHTML=`<div class="eyebrow">PREREQUISITES → CURRENT → UNLOCKS</div><div class="learn-chain" style="margin-top:14px">${pre.map(step).join('<b>→</b>')}${pre.length?'<b>→</b>':''}<span class="current">${n.name}</span>${next.length?'<b>→</b>':''}${next.map(step).join('<b>→</b>')}</div><div class="eli5" style="margin-top:18px"><b>PATTERN</b><p>Learn the dependency immediately before the concept, then build one tiny working path that uses it. Every step above is clickable — travel the chain.</p></div>`;openModal()}
   function openModal(){$('#overlay').classList.add('open')}function closeModal(){$('#overlay').classList.remove('open')}
   function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove('show'),2400)}
-  function search(){const q=$('#searchInput').value.trim().toLowerCase();if(!q)return;stopMission(true);let scored=nodes.map(n=>{const hay=[n.name,n.role,n.eli5,...(n.aliases||[]),...(n.implementations||[]).map(i=>i.name)].join(' ').toLowerCase();let s=0;if(hay===q)s=100;if(n.name.toLowerCase()===q)s=95;if((n.aliases||[]).some(a=>a===q))s=90;if(hay.includes(q))s=Math.max(s,60);q.split(/\s+/).forEach(w=>{if(w.length>2&&hay.includes(w))s+=5});return{n,s}}).sort((a,b)=>b.s-a.s);const hit=scored[0];if(!hit||hit.s<5){toast(`No strong match for “${q}”. Try a concept, product, or goal.`);return}state.depth=Math.max(state.depth,2);select(hit.n.id);state.lens=bestLensFor(hit.n);renderMap();renderInspector();toast(`You searched “${q}” → ${hit.n.name}`)}
+  function scoreQuery(q){return nodes.map(n=>{const hay=[n.name,n.role,n.eli5,...(n.aliases||[]),...(n.implementations||[]).map(i=>i.name)].join(' ').toLowerCase();let s=0;if(hay===q)s=100;if(n.name.toLowerCase()===q)s=95;if((n.aliases||[]).some(a=>a===q))s=90;if(hay.includes(q))s=Math.max(s,60);q.split(/\s+/).forEach(w=>{if(w.length>2&&hay.includes(w))s+=5});return{n,s}}).sort((a,b)=>b.s-a.s)}
+  function search(){const q=$('#searchInput').value.trim().toLowerCase();if(!q)return;closeSearchMenu();stopMission(true);let scored=scoreQuery(q);const hit=scored[0];if(!hit||hit.s<5){toast(`No strong match for “${q}”. Try a concept, product, or goal.`);return}state.depth=Math.max(state.depth,2);select(hit.n.id);state.lens=bestLensFor(hit.n);renderMap();renderInspector();toast(`You searched “${q}” → ${hit.n.name}`)}
+  let menuIdx=-1;
+  function renderSearchMenu(){const q=$('#searchInput').value.trim().toLowerCase();const menu=$('#searchMenu');if(!q){closeSearchMenu();return}const hits=scoreQuery(q).filter(x=>x.s>=5).slice(0,6);if(!hits.length){closeSearchMenu();return}menuIdx=-1;menu.innerHTML=hits.map(x=>`<button role="option" id="sm-${x.n.id}" data-sm="${x.n.id}">${x.n.icon} <b>${x.n.name}</b><span>${districtById[x.n.district].name}</span></button>`).join('');menu.hidden=false;$('#searchInput').setAttribute('aria-expanded','true')}
+  function closeSearchMenu(){const menu=$('#searchMenu');if(!menu||menu.hidden)return;menu.hidden=true;menu.innerHTML='';menuIdx=-1;$('#searchInput').setAttribute('aria-expanded','false');$('#searchInput').removeAttribute('aria-activedescendant')}
+  function searchKeydown(e){const menu=$('#searchMenu');const opts=menu&&!menu.hidden?[...menu.querySelectorAll('button')]:[];
+    if((e.key==='ArrowDown'||e.key==='ArrowUp')&&opts.length){e.preventDefault();menuIdx=e.key==='ArrowDown'?(menuIdx+1)%opts.length:(menuIdx-1+opts.length)%opts.length;opts.forEach((o,i)=>o.classList.toggle('active',i===menuIdx));$('#searchInput').setAttribute('aria-activedescendant',opts[menuIdx].id)}
+    else if(e.key==='Escape')closeSearchMenu();
+    else if(e.key==='Enter'){if(menuIdx>=0&&opts[menuIdx])$('#searchInput').value=byId[opts[menuIdx].dataset.sm]?.name||$('#searchInput').value;search()}}
   function playMission(){const id=$('#missionSelect').value,m=missions.find(x=>x.id===id);if(state.missionTimer){stopMission(false);toast('Mission paused.');return}state.mission=m;state.lens='mission';state.highlightPath=[];state.missionStep=-1;setMissionButton(true);const tick=()=>{state.missionStep++;if(state.missionStep>=m.path.length){clearInterval(state.missionTimer);state.missionTimer=null;setMissionButton(false);toast(`Mission complete: ${m.name}`);openMissionSummary(m);return}state.highlightPath=m.path.slice(0,state.missionStep+1);renderMap();const n=byId[m.path[state.missionStep]];toast(`${state.missionStep+1}/${m.path.length} · ${n?.name||m.path[state.missionStep]}`)};tick();state.missionTimer=setInterval(tick,1100)}
   function openMissionSummary(m){$('#modalTitle').textContent=`🏁 ${m.name} · What you need`;$('#modalBody').innerHTML=`<div class="eyebrow">CONCEPTS TRAVERSED → TOOLS TO EXPLORE</div>${m.path.map(id=>{const n=byId[id];if(!n)return '';const impls=(n.implementations||[]).map(i=>`<a class="chip" href="${i.source}" target="_blank" rel="noreferrer">${i.name} ↗</a>`).join('');return `<div class="section"><h3>${n.icon} ${n.name}</h3><div class="chips"><button class="chip" data-go-node="${n.id}">View on map</button>${impls||'<span class="chip unknown">concept — no tool needed</span>'}</div></div>`}).join('')}<div class="eli5" style="margin-top:14px"><b>NEXT</b><p>Work through the tools above in path order — each link is an official source. Re-run the mission anytime and follow the packets.</p></div>`;openModal()}
   function setDepth(d){state.depth=Math.max(0,Math.min(5,d));state.scale=[.88,.96,1.02,1.08,1.13,1.18][state.depth];renderMap();renderInspector()}
   function home(){stopMission(true);state.selected=null;state.selectedEdge=null;state.history=[];state.focus=false;state.trace=false;state.xray=false;state.xrayReturnDepth=null;state.highlightPath=[];state.lens='physical';state.panX=0;state.panY=0;state.scale=.96;state.depth=1;renderMap();renderWelcome();inspector.classList.remove('open')}
-  let dragging=false,last={x:0,y:0};svg.addEventListener('pointerdown',e=>{if(e.target.closest?.('.node,.district,.impl'))return;dragging=true;last={x:e.clientX,y:e.clientY};svg.setPointerCapture(e.pointerId)});svg.addEventListener('pointermove',e=>{if(!dragging)return;state.panX+=e.clientX-last.x;state.panY+=e.clientY-last.y;last={x:e.clientX,y:e.clientY};updateTransform()});svg.addEventListener('pointerup',()=>dragging=false);svg.addEventListener('pointercancel',()=>dragging=false);
+  const pointers=new Map();let pinching=false;
+  const SCALE_TABLE=[.88,.96,1.02,1.08,1.13,1.18];
+  function depthFromScale(s){let best=0;for(let i=1;i<SCALE_TABLE.length;i++){if(Math.abs(s-SCALE_TABLE[i])<Math.abs(s-SCALE_TABLE[best]))best=i}return best}
+  svg.addEventListener('pointerdown',e=>{if(e.target.closest?.('.node,.district,.impl'))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});try{svg.setPointerCapture(e.pointerId)}catch{}});
+  svg.addEventListener('pointermove',e=>{
+    if(!pointers.has(e.pointerId))return;
+    if(pointers.size===2){
+      const other=[...pointers.entries()].find(([id])=>id!==e.pointerId);
+      if(!other)return;
+      const prev=pointers.get(e.pointerId),o=other[1];
+      const prevDist=Math.hypot(prev.x-o.x,prev.y-o.y),newDist=Math.hypot(e.clientX-o.x,e.clientY-o.y);
+      if(prevDist>0&&newDist>0){
+        const ratio=newDist/prevDist,next=Math.max(.6,Math.min(2.5,state.scale*ratio)),applied=next/state.scale;
+        const rect=svg.getBoundingClientRect(),sx=1600/rect.width,sy=900/rect.height;
+        const midX=((e.clientX+o.x)/2-rect.left)*sx,midY=((e.clientY+o.y)/2-rect.top)*sy;
+        state.panX=midX-(midX-state.panX)*applied;state.panY=midY-(midY-state.panY)*applied;
+        state.scale=next;pinching=true;updateTransform();
+      }
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    } else if(pointers.size===1){
+      const prev=pointers.get(e.pointerId);
+      state.panX+=e.clientX-prev.x;state.panY+=e.clientY-prev.y;
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});updateTransform();
+    }
+  });
+  const endPointer=e=>{pointers.delete(e.pointerId);if(pinching&&pointers.size<2){pinching=false;state.depth=depthFromScale(state.scale);renderMap();renderInspector()}};
+  svg.addEventListener('pointerup',endPointer);svg.addEventListener('pointercancel',endPointer);
   function goBack(){stopMission(true);state.xrayReturnDepth=null;const h=state.history.pop();if(!h){home();return}state.selected=h.selected;state.selectedEdge=h.selectedEdge;state.depth=h.depth;state.lens=h.lens;if(h.panX!==undefined){state.panX=h.panX;state.panY=h.panY}state.scale=[.88,.96,1.02,1.08,1.13,1.18][state.depth];state.focus=false;state.trace=false;state.xray=false;state.highlightPath=[];renderMap();renderInspector()}
-  $('#zoomIn').addEventListener('click',()=>setDepth(state.depth+1));$('#zoomOut').addEventListener('click',()=>setDepth(state.depth-1));$('#backBtn').addEventListener('click',goBack);$('#homeBtn').addEventListener('click',home);$('#searchBtn').addEventListener('click',search);$('#searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
+  $('#zoomIn').addEventListener('click',()=>setDepth(state.depth+1));$('#zoomOut').addEventListener('click',()=>setDepth(state.depth-1));$('#backBtn').addEventListener('click',goBack);$('#homeBtn').addEventListener('click',home);$('#searchBtn').addEventListener('click',search);$('#searchInput').addEventListener('keydown',searchKeydown);$('#searchInput').addEventListener('input',renderSearchMenu);$('#searchInput').addEventListener('blur',()=>setTimeout(closeSearchMenu,150));$('#searchMenu').addEventListener('pointerdown',e=>e.preventDefault());$('#searchMenu').addEventListener('click',e=>{const b=e.target.closest('button[data-sm]');if(!b)return;$('#searchInput').value=byId[b.dataset.sm]?.name||'';$('#searchBtn').click()});
   function startMission(id){stopMission(true);$('#missionSelect').value=id;inspector.classList.remove('open');playMission()}
   $('#crumbs').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.crumbHome)home();else if(t.dataset.crumbDistrict)select(t.dataset.crumbDistrict)});
   $('#insBody').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.goMission)startMission(t.dataset.goMission);else if(t.dataset.goSearch){$('#searchInput').value=t.dataset.goSearch;search()}else if(t.dataset.goBuilder)openBuilder();else if(t.dataset.goDepth)setDepth(+t.dataset.goDepth)});

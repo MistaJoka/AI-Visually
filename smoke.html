@@ -136,6 +136,49 @@ frame.addEventListener('load', async () => {
     d.getElementById('modalClose')?.click();
     d.getElementById('homeBtn').click();
 
+    // Deep links: hash write, hash apply, browser back
+    d.getElementById('homeBtn').click();
+    await sleep(200);
+    click(d.querySelector('.district-ai'));
+    await sleep(250);
+    report('Selecting a district writes the URL hash', w.location.hash === '#d/ai', `got "${w.location.hash}"`);
+    w.location.hash = '#c/mcp';
+    await sleep(300);
+    report('Deep link navigates to concept', d.getElementById('insTitle')?.textContent === 'MCP Interface', `got "${d.getElementById('insTitle')?.textContent}"`);
+    w.history.back();
+    await sleep(400);
+    report('Browser back restores prior state', d.getElementById('insTitle')?.textContent === 'AI Reactor', `got "${d.getElementById('insTitle')?.textContent}"`);
+
+    // Search autocomplete
+    d.getElementById('homeBtn').click();
+    await sleep(200);
+    const si = d.getElementById('searchInput');
+    si.value = 'vec';
+    si.dispatchEvent(new w.Event('input', {bubbles: true}));
+    await sleep(200);
+    const menuOpts = d.querySelectorAll('#searchMenu button');
+    report('Autocomplete menu lists matches', menuOpts.length >= 2, `got ${menuOpts.length}`);
+    click(menuOpts[0]);
+    await sleep(300);
+    report('Autocomplete option navigates', (d.getElementById('insTitle')?.textContent || '').length > 0 && d.getElementById('insTitle')?.textContent !== 'The Whole Lab', `got "${d.getElementById('insTitle')?.textContent}"`);
+    report('Autocomplete menu closed after pick', d.getElementById('searchMenu').hidden === true);
+
+    // Pinch zoom (two synthetic pointers)
+    d.getElementById('homeBtn').click();
+    await sleep(200);
+    const svgTarget = d.getElementById('worldSvg');
+    const pev = (type, id, x, y) => svgTarget.dispatchEvent(new w.PointerEvent(type, {pointerId: id, clientX: x, clientY: y, bubbles: true}));
+    pev('pointerdown', 1, 500, 400); pev('pointerdown', 2, 700, 400);
+    pev('pointermove', 2, 800, 400); pev('pointermove', 2, 900, 400);
+    pev('pointerup', 1, 500, 400); pev('pointerup', 2, 900, 400);
+    await sleep(250);
+    const tf = d.getElementById('viewport').getAttribute('transform') || '';
+    const sc = parseFloat((tf.match(/scale\(([\d.]+)\)/) || [])[1] || '0');
+    report('Pinch gesture zooms the map', sc > 1.5, `scale ${sc}`);
+    report('Pinch end snaps semantic depth', d.getElementById('zoomLabel').textContent === 'Z5 ENGINEERING', `got "${d.getElementById('zoomLabel').textContent}"`);
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+
     report('No JS errors during run', errors.length === 0, errors.join('; '));
   } catch (e) {
     report('Harness completed without exception', false, e.message);
