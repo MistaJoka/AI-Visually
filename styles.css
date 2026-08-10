@@ -60,6 +60,8 @@
   .node rect{fill:#0a1728;stroke:#36516e;stroke-width:1.5;rx:12}.node text{pointer-events:none}.node .nicon{font-size:19px}.node .nname{font-size:12px;font-weight:800;fill:#f4f8ff}.node .nrole{font-size:9px;fill:#9bb0c8}.node{cursor:pointer;transition:opacity .18s}.node:hover rect,.node.selected rect{stroke:var(--acid);stroke-width:3}.node.dim{opacity:.09}.node.focusdim{opacity:.05}
   .impl rect{fill:#101f33;stroke:#29405a;rx:8}.impl text{font-size:9px;fill:#cbd8e7}.impl{cursor:pointer}.impl:hover rect{stroke:var(--cyan)}
   .edge{stroke:#29405a;stroke-width:2;fill:none;opacity:.42}.edge.active{stroke:var(--acid);stroke-width:4;opacity:1}.edge.data{stroke-dasharray:7 5}.edge.security{stroke:var(--red);stroke-dasharray:10 5}.edge.network{stroke:var(--blue)}.edge.executes{stroke-width:3;stroke-dasharray:2 3}.edge.observes{stroke:var(--cyan);stroke-dasharray:8 3 2 3}.edge.reads{stroke-dasharray:2 5}.edge-hit{stroke:transparent;stroke-width:18;fill:none;pointer-events:stroke;cursor:pointer}
+  .edge-bundle{opacity:.6;stroke-linecap:round}
+  .edge-bundle.active{opacity:1}
   .packet{fill:var(--acid);filter:drop-shadow(0 0 4px rgba(223,254,2,.7))}
   .zone-label{font-size:10px;fill:#69839d;letter-spacing:.18em;font-weight:900}
   .trust-boundary{fill:none;stroke:#ff5d73;stroke-width:2;stroke-dasharray:9 8;opacity:.65}

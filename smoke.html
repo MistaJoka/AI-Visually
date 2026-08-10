@@ -273,6 +273,33 @@ frame.addEventListener('load', async () => {
     d.getElementById('homeBtn').click();
     await sleep(150);
 
+    // Adaptive complexity: edge bundling at Z0/Z1, full detail at Z2+
+    report('Z1 shows bundled edges, not individual ones', d.querySelectorAll('.edge-bundle').length > 5 && d.querySelectorAll('.edge:not(.edge-bundle):not(.edge-hit)').length === 0, `bundles ${d.querySelectorAll('.edge-bundle').length}`);
+    const bundleHit = d.querySelector('.edge-hit[aria-label*="connection"]');
+    click(bundleHit);
+    await sleep(150);
+    report('Clicking a bundle summarizes its connections', (d.getElementById('toast')?.textContent || '').includes('connection'), `got "${d.getElementById('toast')?.textContent}"`);
+    d.getElementById('zoomIn').click();
+    await sleep(150);
+    report('Z2+ restores full per-edge detail', d.querySelectorAll('.edge-bundle').length === 0 && d.querySelectorAll('.edge:not(.edge-bundle):not(.edge-hit)').length > 40, `edges ${d.querySelectorAll('.edge:not(.edge-bundle):not(.edge-hit)').length}`);
+    d.getElementById('zoomOut').click();
+    await sleep(150);
+    d.getElementById('missionSelect').value = 'chatbot'; // its 2nd edge (chat→modelServer) crosses districts early, unlike rag's late-only crossing
+    d.getElementById('missionPlay').click();
+    await sleep(2800);
+    report('Mission playback highlights bundles while zoomed out', d.querySelectorAll('.edge-bundle.active').length > 0);
+    d.getElementById('missionPlay').click();
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+
+    // Latent bug fix: Home closes any open modal instead of leaving it stranded
+    click(d.querySelector('#insBody button[data-go-mission="chatbot"]'));
+    await sleep(7200); // 6-step chatbot mission completes (6 × 1100ms) and opens its summary modal
+    report('Mission completion left the summary modal open (setup)', d.getElementById('overlay')?.classList.contains('open'));
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+    report('Home closes a stranded modal', !d.getElementById('overlay')?.classList.contains('open'));
+
     report('No JS errors during run', errors.length === 0, errors.join('; '));
   } catch (e) {
     report('Harness completed without exception', false, e.message);

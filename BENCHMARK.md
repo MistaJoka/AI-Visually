@@ -80,12 +80,13 @@ rather than only revealing map position.
 Measurable locally:
 - **Depth-gated rendering**: nodes at Z2+, roles/chips at Z3+, mechanism Z4, engineering Z5 (yes).
 - **Lens-based dimming** with view-defaults ALL override (yes).
-- **Edge management at density**: 64 individual beziers, no bundling, no label collision management beyond truncation. Legible today; will not survive 3–4× edge growth.
+- **Edge management at density**: at Z0–Z1, 51 individual edges (25 cross-district + 26 same-district, which never reach visible endpoints at that zoom anyway) now collapse to 13 aggregate district-pair bundle lines — stroke-width scaled by how many real edges bundle into each, color by the dominant relationship type, clickable for a plain-language summary ("2 connections: Interface Deck ↔ Shipyard"). Full per-node detail returns unchanged at Z2+. Verified this is a real reduction, not guesswork: computed from the actual edge data before writing any rendering code.
 - **Per-tier degradation**: mobile tier reduces texture opacity and disables ambient motion (yes).
 
-**Current score: 2.5** — semantic zoom and lens dimming are systematic; there is no edge
-bundling or density-adaptive edge rendering. Path to 3: fade/bundle same-type edge groups
-at Z0–Z1, full detail at Z2+.
+**Current score: 3** — legibility now genuinely adapts at the zoom level that most needed
+it (world/district overview, where the map is everyone's first impression). Path to 4: the
+bundle click today only toasts a count; make it a real drill-down (jump straight to Z2
+centered on the two districts, ideally with the specific bundled edges pre-highlighted).
 
 ## Axis 6 · Direct manipulation (exemplar: interactive knowledge graphs)
 
@@ -128,10 +129,10 @@ which concept entries are hand-authored/reviewed (`roles`) from which are unrevi
 | 2. Model & flows | IcePanel | **3** |
 | 3. Live topology | Kiali | **0** (non-goal) |
 | 4. Reactive explanation | Observable/Distill | **3** |
-| 5. Adaptive complexity | Semantic bundling | **2.5** |
+| 5. Adaptive complexity | Semantic bundling | **3** |
 | 6. Direct manipulation | InteractiveKG | **3** |
 | 7. AI-native provenance | BONSAI | **3** |
-| **Total (excluding non-goal axis 3)** | | **17.5 / 24** |
+| **Total (excluding non-goal axis 3)** | | **18 / 24** |
 
 No single real product scores 4 on more than one or two of these axes; the composite is a
 direction, not a competitor. The scorecard's job is to make each enhancement round's target
@@ -146,8 +147,10 @@ explicit: name the axis, name the level you're buying.
 4. Update the scorecard table and date this file in the same commit as the change that moved
    a score.
 
-Last scored: 2026-08-09 (post ontological-rigor round: axis 1 moved 2.5 → 3 — all 43 nodes
-now hand-authored, zero `generic()` fallbacks, verified programmatically and ratcheted in the
-smoke suite. Total 17.5/24. Five of six scored axes are now at 3; only adaptive complexity
-(edge bundling at low zoom, 2.5/4) sits below. That's the natural next round — every other
-axis's path-to-4 is "extend what already works to more content," not new mechanism design.).
+Last scored: 2026-08-09 (post adaptive-complexity round: axis 5 moved 2.5 → 3 — Z0/Z1 now
+render 13 aggregate district-pair bundles instead of 51 individual edges, full detail
+returning unchanged at Z2+. Total 18/24 — **all six scored axes now sit at 3/4, none below.**
+Every remaining path-to-4 across every axis is the same shape: extend a proven mechanism
+deeper into the content (more stepper coverage, richer bundle drill-down, a synonym audit,
+concept-level review markers) rather than invent a new one. Good natural pausing point;
+resume with whichever axis matters most next time.).

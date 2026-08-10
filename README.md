@@ -27,6 +27,7 @@ After GitHub Pages is enabled for this repository, the project site will be:
 - Training territory: fine-tuning/LoRA, quantization, multimodal, prompt engineering, and evals
 - Every concept hand-authored — zero placeholder text anywhere on the map
 - Interactive system builder
+- Zoomed-out views bundle connections into clean district-to-district lines; full per-node detail returns at Z2+
 - Mobile bottom-sheet inspector
 - iPhone-safe tutorial controls and safe-area handling
 - Keyboard-accessible nodes, relationships, and implementation chips
