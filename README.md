@@ -20,10 +20,12 @@ After GitHub Pages is enabled for this repository, the project site will be:
 - A personal layer: pin concepts, write local notes, and draw your own links — stored only in your browser (localStorage)
 - Clickable relationships
 - Focus, Trace, Show Me, X-Ray, Compare, Build With, and Learn actions
+- Provenance you can see: every tool carries a stability rating (stable/evolving/volatile) and a verified date, visible on the map and in Compare
 - Steppable mechanisms at Z4/X-Ray: click through a concept's real stages at your own pace
 - Builder compositions write back to the map — see what you assembled, highlighted and animated
 - 10 guided mission playbacks, each ending in a "what you need" tool list with official sources
 - Training territory: fine-tuning/LoRA, quantization, multimodal, prompt engineering, and evals
+- Every concept hand-authored — zero placeholder text anywhere on the map
 - Interactive system builder
 - Mobile bottom-sheet inspector
 - iPhone-safe tutorial controls and safe-area handling

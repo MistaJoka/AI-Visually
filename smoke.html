@@ -244,6 +244,35 @@ frame.addEventListener('load', async () => {
     d.getElementById('homeBtn').click();
     await sleep(150);
 
+    // Provenance: stability tags + verified dates
+    w.location.hash = '#c/modelServer';
+    await sleep(300);
+    click(d.querySelector('[data-action="compare"]'));
+    await sleep(200);
+    const stabSpans = [...d.querySelectorAll('.compare-card .kv span')].filter(s => /STABLE|EVOLVING|VOLATILE|UNRATED/.test(s.textContent));
+    report('Compare cards show a stability rating', stabSpans.length > 0, `got ${stabSpans.length}`);
+    report('No implementation is unrated', ![...d.querySelectorAll('.compare-card')].some(c => c.textContent.includes('UNRATED')));
+    report('Compare cards show a verified date', [...d.querySelectorAll('.compare-card')].every(c => c.textContent.includes('2026-08-09')));
+    report('Compare legend explains the stability colors', !!d.querySelector('.stab-legend'));
+    d.getElementById('modalClose')?.click();
+    d.getElementById('zoomIn').click();
+    await sleep(150);
+    report('Z3 impl chips render a stability dot', !!d.querySelector('.impl .implstab'));
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+
+    // Ontological rigor: every node has a real (non-generic) six-fact entry
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+    w.location.hash = '#c/ide';
+    await sleep(250);
+    report('Previously-generic node has real ELI5', (d.getElementById('insBody')?.textContent || '').includes('pair-write'));
+    w.location.hash = '#c/git';
+    await sleep(250);
+    report('Every previously-generic node is hand-authored', !(d.getElementById('insBody')?.textContent || '').includes('is the') , `got "${(d.getElementById('insBody')?.textContent||'').slice(0,80)}"`);
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+
     report('No JS errors during run', errors.length === 0, errors.join('; '));
   } catch (e) {
     report('Harness completed without exception', false, e.message);

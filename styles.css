@@ -119,6 +119,9 @@
   .learn-chain button{background:#0d1b2e;border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:11px;color:var(--ink);cursor:pointer}
   .learn-chain button:hover{border-color:var(--acid);color:var(--acid)}
   .compare-card{border-top:3px solid var(--accent,var(--line))}
+  .stab-legend{font-size:11px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+  .stab-stable{color:var(--green)}.stab-evolving{color:var(--orange)}.stab-volatile{color:var(--red)}.stab-unrated{color:var(--muted)}
+  .implstab-stable{fill:var(--green)}.implstab-evolving{fill:var(--orange)}.implstab-volatile{fill:var(--red)}.implstab-unrated{fill:var(--muted)}
   .partbtn{border-left:3px solid var(--accent,var(--line))}
   .bnode{border-left:3px solid var(--accent,var(--line))}
   .district:focus-visible .dbase,.node:focus-visible rect{stroke:var(--acid);stroke-width:3}

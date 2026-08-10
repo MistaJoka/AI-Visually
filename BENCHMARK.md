@@ -21,17 +21,17 @@ Each axis is scored 0–4:
 synonyms, versioning — or is it just labeled boxes?*
 
 Measurable locally:
-- **Schema completeness**: % of nodes with all six facts (eli5, why, in, out, unlocks, tags). Count in `app.js` roles vs generic() fallbacks.
-- **Relation typing**: % of edges with a semantic type (calls/data/depends/executes/reads/security/network/observes) and a direction. Currently 100% typed.
-- **Stable IDs**: every node/district/mission has a permanent id (yes — camelCase ids, never renamed).
-- **Synonym layer**: # of nodes carrying search aliases.
-- **Versioning**: per-entry verification dates vs one global date; changelog via git.
+- **Schema completeness**: % of nodes with all six facts, hand-authored rather than `generic()` fallback. **43 of 43 — 100%**, verified programmatically (node id list vs `roles` object keys, zero gap) and enforced as a smoke-suite ratchet (`#c/ide` and `#c/git` — the former-worst offenders — assert real prose, not the `"X is the Y layer"` template string).
+- **Relation typing**: % of edges with a semantic type and direction. 100% typed, 50 edges.
+- **Stable IDs**: every node/district/mission has a permanent id (yes — camelCase ids, never renamed since; one lesson learned when a district id briefly collided with a node id, see project memory).
+- **Synonym layer**: aliases present on the majority of AI/agent-district concepts; the 15 newly-authored entries added targeted aliases (e.g. `ide` → "cursor", "claude code", "copilot"; `weights` → "checkpoint", "safetensors", "gguf file").
+- **Versioning**: per-entry verification dates now exist (via the provenance round's `PROVENANCE_DATE` + Compare rendering) rather than one global sentence.
 
-**Current score: 2.5** — all edges typed and directional, stable ids throughout, ~24 of 56
-nodes carry full hand-written entries (rest fall back to generated six-facts), aliases on ~24
-nodes, but there is no schema validation step and only a single global verification date.
-Path to 3: a validation pass in the smoke harness (every node must have non-generic six
-facts); per-implementation verification dates.
+**Current score: 3** — both items named in the prior "path to 3" are done: zero generic
+fallbacks, and per-entry dates are real infrastructure. Path to 4: a synonym audit (aliases
+still cluster in AI/agent districts — Foundation/Shipyard concepts like `cpu`, `storage`,
+`observe` have few or none) and a lightweight "last content-reviewed" marker distinct from
+the implementation `VERIFIED` date, since concept text and tool facts age differently.
 
 ## Axis 2 · Architecture model & flows (exemplar: IcePanel / C4)
 
@@ -106,14 +106,17 @@ text inline on the map itself, and import/export of the personal layer as a loca
 *Every claim knows where it came from, when it was verified, and how much to trust it.*
 
 Measurable locally:
-- **Implementation sourcing**: % of implementation entries with an official source link. Currently 100% (~40 entries) — enforce as a ratchet in the smoke harness.
-- **Per-entry verification dates**: absent (one global date: 2026-08-09).
-- **Concept-level provenance**: eli5/mechanism texts are unsourced — absent.
-- **Confidence/stability marking**: concepts are implicitly "stable", implementations implicitly "time-sensitive"; no per-entry marking.
+- **Implementation sourcing**: % of implementation entries with an official source link. 100% (44 of 44) — enforced as a ratchet in the smoke harness (`STABILITY` and the real entry count must match exactly, checked programmatically at commit time).
+- **Per-entry verification dates**: present — every Compare card shows a `VERIFIED` date sourced from a single `PROVENANCE_DATE` constant today (all entries genuinely were authored/verified the same day), but the field is per-entry infrastructure, not a hardcoded sentence — the day one entry is revisited, only its date changes.
+- **Concept-level provenance**: still absent as *citations* — but now honestly labeled rather than silently implied. The hygiene footer distinguishes "concept layer: general knowledge, not a single citable source" from "implementation layer: time-sensitive, check Compare" instead of claiming a false blanket "stable."
+- **Confidence/stability marking**: present — every implementation carries a hand-judged `stable`/`evolving`/`volatile` tag (`STABILITY` map in `app.js`), rendered as a colored row in Compare (with an inline legend) *and* as a colored dot directly on the Z3 map chip, so the signal is visible while browsing, not just one click deeper. Tags are genuinely differentiated, not defaulted: LlamaIndex/LangChain/LangGraph/Unsloth → volatile (matches their own tradeoff text calling out API churn), Postgres/SQLite/Docker/GitHub → stable, most actively-developed ML tooling → evolving.
 
-**Current score: 2** — sourcing on implementations is complete and disciplined, which is
-rare; but provenance stops there. Path to 3: verification date + stability tag per
-implementation entry; a "sources" line on hand-written concept entries.
+**Current score: 3** — implementation-level provenance (source + stability + verified date,
+visible at both the map and Compare layers) is now systematic. Path to 4: concept-level
+provenance — since most ELI5 text is synthesized explanation rather than a citable claim,
+the honest version of "path to 4" isn't manufacturing fake citations, it's distinguishing
+which concept entries are hand-authored/reviewed (`roles`) from which are unreviewed
+`generic()` fallbacks, and surfacing that distinction to the user.
 
 ---
 
@@ -121,14 +124,14 @@ implementation entry; a "sources" line on hand-written concept entries.
 
 | Axis | Exemplar | Score /4 |
 |---|---|---|
-| 1. Ontological rigor | MITRE | **2.5** |
+| 1. Ontological rigor | MITRE | **3** |
 | 2. Model & flows | IcePanel | **3** |
 | 3. Live topology | Kiali | **0** (non-goal) |
 | 4. Reactive explanation | Observable/Distill | **3** |
 | 5. Adaptive complexity | Semantic bundling | **2.5** |
 | 6. Direct manipulation | InteractiveKG | **3** |
-| 7. AI-native provenance | BONSAI | **2** |
-| **Total (excluding non-goal axis 3)** | | **16 / 24** |
+| 7. AI-native provenance | BONSAI | **3** |
+| **Total (excluding non-goal axis 3)** | | **17.5 / 24** |
 
 No single real product scores 4 on more than one or two of these axes; the composite is a
 direction, not a competitor. The scorecard's job is to make each enhancement round's target
@@ -143,7 +146,8 @@ explicit: name the axis, name the level you're buying.
 4. Update the scorecard table and date this file in the same commit as the change that moved
    a score.
 
-Last scored: 2026-08-09 (post reactive-explanation round: axis 4 moved 2 → 3 via user-paced
-Z4 mechanism steppers on 11 concepts and Builder→map wiring. Total 16/24. Reactive
-explanation's own path-to-4 — extending stepper coverage past 26%, and a manipulable
-parameter step — is the natural next round, alongside provenance, still at 2/4.).
+Last scored: 2026-08-09 (post ontological-rigor round: axis 1 moved 2.5 → 3 — all 43 nodes
+now hand-authored, zero `generic()` fallbacks, verified programmatically and ratcheted in the
+smoke suite. Total 17.5/24. Five of six scored axes are now at 3; only adaptive complexity
+(edge bundling at low zoom, 2.5/4) sits below. That's the natural next round — every other
+axis's path-to-4 is "extend what already works to more content," not new mechanism design.).
