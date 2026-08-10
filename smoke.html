@@ -352,6 +352,20 @@ frame.addEventListener('load', async () => {
     frame.style.width = '1280px';
     await sleep(200);
 
+    // Mobile dead-space fix: map switches to a full-bleed slice only where letterboxing would be severe
+    report('Desktop width keeps the letterboxed fit (no crop)', d.getElementById('worldSvg').getAttribute('preserveAspectRatio') === 'xMidYMid meet');
+    frame.style.width = '375px';
+    w.dispatchEvent(new w.Event('resize')); // frame.style.width alone doesn't reliably forward a resize event into the iframe
+    await sleep(300);
+    report('Portrait width switches to full-bleed slice', d.getElementById('worldSvg').getAttribute('preserveAspectRatio') === 'xMidYMid slice');
+    // Note: the minimap-vs-inspector-peek clearance itself (bottom:86px in the ≤900px tier) is verified
+    // by direct real-browser measurement, not here — this iframe's simulated resize doesn't recompute
+    // the inspector's CSS transform the way a genuine viewport resize does, so that pixel geometry isn't
+    // faithfully testable through this harness.
+    report('Minimap re-appears at phone width', getComputedStyle(d.querySelector('.minimap')).display !== 'none');
+    frame.style.width = '1280px';
+    await sleep(300);
+
     report('No JS errors during run', errors.length === 0, errors.join('; '));
   } catch (e) {
     report('Harness completed without exception', false, e.message);

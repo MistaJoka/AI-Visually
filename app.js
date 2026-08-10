@@ -211,6 +211,7 @@
   function isNeighbor(a,b){return edges.some(e=>(e.a===a&&e.b===b)||(e.a===b&&e.b===a))||byId[b]?.district===byId[a]?.district}
   function drawPackets(){for(let i=0;i<state.highlightPath.length-1;i++){const a=nodeCenter(state.highlightPath[i]),b=nodeCenter(state.highlightPath[i+1]);const c=svgEl('circle',{r:6,class:'packet'});const motion=svgEl('animateMotion',{dur:`${1.25+i*.08}s`,repeatCount:'indefinite',path:`M${a.x},${a.y} C${(a.x+b.x)/2},${a.y} ${(a.x+b.x)/2},${b.y} ${b.x},${b.y}`});c.appendChild(motion);effectsLayer.appendChild(c)}}
   function updateTransform(){viewport.setAttribute('transform',`translate(${state.panX} ${state.panY}) scale(${state.scale})`);const v=$('#miniViewport');const vw=1600/state.scale,vh=900/state.scale;const vx=Math.max(8,170-state.panX/state.scale),vy=Math.max(8,120-state.panY/state.scale);v.setAttribute('width',Math.min(1584,vw,1592-vx));v.setAttribute('height',Math.min(884,vh,892-vy));v.setAttribute('x',vx);v.setAttribute('y',vy)}
+  function syncAspect(){const r=svg.getBoundingClientRect();if(!r.width||!r.height)return;const a=r.width/1600,b=r.height/900,wasted=1-Math.min(a,b)/Math.max(a,b);svg.setAttribute('preserveAspectRatio',wasted>.45?'xMidYMid slice':'xMidYMid meet')}
   function updateHUD(){
     const names=['Z0 WORLD','Z1 DISTRICT','Z2 CONCEPT','Z3 IMPLEMENTATION','Z4 MECHANISM','Z5 ENGINEERING'];$('#zoomLabel').textContent=names[state.depth];
     let c=`<button data-crumb-home="1">WORLD</button> › <button data-crumb-home="1"><b>REFERENCE LAB</b></button>`;
@@ -391,5 +392,5 @@
   function tapSafe(el,fn){let lastTouch=0;el.addEventListener('touchend',e=>{lastTouch=Date.now();e.preventDefault();fn(e)},{passive:false});el.addEventListener('click',e=>{if(Date.now()-lastTouch<650)return;fn(e)});}
   tapSafe($('#tNext'),nextTutorial);tapSafe($('#tSkip'),closeTutorial);tapSafe($('#helpBtn'),()=>{ti=0;renderTutorial();$('#tutorial').classList.remove('hidden')});
   $('.ins-head').addEventListener('click',()=>{if(innerWidth<900)inspector.classList.toggle('open')});
-  renderMini();renderMap();renderWelcome();window.__atlasReady=true;
+  renderMini();renderMap();renderWelcome();syncAspect();addEventListener('resize',syncAspect);addEventListener('orientationchange',syncAspect);window.__atlasReady=true;
 })();
