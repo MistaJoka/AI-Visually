@@ -101,6 +101,10 @@
   .search-menu button span{margin-left:auto;color:var(--muted);font-size:11px}
   .search-menu button:hover,.search-menu button.active{background:rgba(223,254,2,.1);color:var(--acid)}
   .search-menu button:hover span,.search-menu button.active span{color:var(--acid)}
+  .mechdots{display:flex;gap:5px;margin:2px 0 10px}
+  .mechdot{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .mechdot.on{background:var(--acid)}
+  .mech-nav button:disabled{opacity:.3;cursor:not-allowed}
   .mynote{width:100%;margin-top:8px;background:#07111f;border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:8px 10px;font:inherit;font-size:12px;line-height:1.4;min-height:64px;resize:vertical}
   .mynote:focus{outline:none;border-color:var(--acid)}
   .pinmark,.notemark{font-size:10px}

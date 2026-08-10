@@ -212,6 +212,38 @@ frame.addEventListener('load', async () => {
     report('Welcome shows pinned collection', [...d.querySelectorAll('#insBody h3')].some(h => h.textContent.includes('Pinned')) && !!d.querySelector('#insBody button[data-go-node="vector"]'));
     w.localStorage.removeItem('atlasUser');
 
+    // Steppable mechanisms: Z4 click-through stages
+    w.location.hash = '#c/mcp';
+    await sleep(300);
+    click(d.querySelector('[data-action="xray"]'));
+    await sleep(200);
+    let nextBtn = d.querySelector('#insBody button[data-mech-next]');
+    report('Mechanism stepper renders at Z4', !!nextBtn, `zoom "${d.getElementById('zoomLabel')?.textContent}"`);
+    report('Prev disabled at step 1', d.querySelector('#insBody button[data-mech-prev]')?.disabled === true);
+    click(nextBtn);
+    await sleep(200);
+    report('Next advances the step and grows the highlight path', d.getElementById('insTitle') && (d.querySelectorAll('#insBody .mechdot.on').length === 2) && (d.querySelectorAll('.packet').length > 0 || w.location.hash), `dots ${d.querySelectorAll('#insBody .mechdot.on').length}`);
+    click(d.querySelector('#insBody button[data-mech-prev]'));
+    await sleep(200);
+    report('Prev retreats the step', d.querySelectorAll('#insBody .mechdot.on').length === 1, `dots ${d.querySelectorAll('#insBody .mechdot.on').length}`);
+
+    // Builder → map wiring
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+    click(d.querySelector('#insBody button[data-go-builder]'));
+    await sleep(200);
+    click(d.querySelector('.partbtn[data-part="tool"]'));
+    click(d.querySelector('.partbtn[data-part="loop"]'));
+    await sleep(150);
+    const showMapBtn = d.getElementById('builderShowMap');
+    report('Builder offers Show on map once composed', !!showMapBtn && showMapBtn.disabled === false);
+    click(showMapBtn);
+    await sleep(250);
+    report('Show on map closes the modal', !d.getElementById('overlay')?.classList.contains('open'));
+    report('Show on map highlights the composed path', d.querySelectorAll('.edge.active').length > 0 || d.querySelectorAll('.packet').length > 0);
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+
     report('No JS errors during run', errors.length === 0, errors.join('; '));
   } catch (e) {
     report('Harness completed without exception', false, e.message);

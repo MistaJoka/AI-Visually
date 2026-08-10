@@ -62,15 +62,16 @@ this without an explicit decision to reverse the pure-reference pivot.
 *Explanations that respond to manipulation — watching information move, not reading about it.*
 
 Measurable locally:
-- **Animated mechanisms**: # of concepts whose mechanism can be *watched* (mission/Show-Me packet paths) vs read (static Z4 text). Currently 13 custom mechanism texts, ~18 Show-Me/mission paths; no manipulable parameters anywhere.
-- **State-reactive prose**: inspector content reacts to zoom/lens/selection (yes, systematically).
-- **Explorable-to-static ratio**: interactive explanations / total concepts.
+- **Animated mechanisms**: # of concepts whose mechanism can be *watched*, and whether the user drives the pace. 11 concepts now have a structured multi-step mechanism (`mechanisms` data object) rendered as a click-through stepper — Prev/Next advances the map's highlighted path and packet animation one stage at a time, in the user's own time, not a timer's.
+- **State-reactive prose**: inspector content reacts to zoom/lens/selection AND to stepper position (yes, systematically).
+- **Manipulable composition**: the Builder's "Show this composition on the map" button turns a user-assembled system (Model+Tool+Loop+MCP, etc.) into a live highlighted path with packet animation — Builder is no longer a disconnected sandbox.
+- **Explorable-to-static ratio**: 11 of 43 concepts (26%) have a full stepper; the rest fall back to one static sentence at Z4.
 
-**Current score: 2** — the inspector is fully state-reactive and packet playback is real,
-but Z4/Z5 depth is mostly static sentences; nothing lets the user vary a parameter and see
-the explanation respond (the Builder is the closest thing and is disconnected from the map).
-Path to 3: make Z4 mechanisms steppable (click through stages on the map); wire Builder
-compositions back onto the map as highlighted paths.
+**Current score: 3** — mechanisms are genuinely steppable (user-paced, not autoplay) and the
+Builder writes back to the map, both closing the gaps named in the prior scoring. Path to 4:
+extend the stepper to more of the 43 concepts (currently 26% coverage); let a step reveal a
+manipulable parameter (e.g. a quantization slider changing the visible weight/speed tradeoff)
+rather than only revealing map position.
 
 ## Axis 5 · Adaptive complexity (exemplar: semantic edge bundling)
 
@@ -123,11 +124,11 @@ implementation entry; a "sources" line on hand-written concept entries.
 | 1. Ontological rigor | MITRE | **2.5** |
 | 2. Model & flows | IcePanel | **3** |
 | 3. Live topology | Kiali | **0** (non-goal) |
-| 4. Reactive explanation | Observable/Distill | **2** |
+| 4. Reactive explanation | Observable/Distill | **3** |
 | 5. Adaptive complexity | Semantic bundling | **2.5** |
 | 6. Direct manipulation | InteractiveKG | **3** |
 | 7. AI-native provenance | BONSAI | **2** |
-| **Total (excluding non-goal axis 3)** | | **15 / 24** |
+| **Total (excluding non-goal axis 3)** | | **16 / 24** |
 
 No single real product scores 4 on more than one or two of these axes; the composite is a
 direction, not a competitor. The scorecard's job is to make each enhancement round's target
@@ -142,4 +143,7 @@ explicit: name the axis, name the level you're buying.
 4. Update the scorecard table and date this file in the same commit as the change that moved
    a score.
 
-Last scored: 2026-08-09 (post AI-first restructure: 9 districts — 6 AI territories + reserved Proving Grounds + 2-district context strip; 43 concepts, 50 edges, 10 missions; homelab-only content removed. Scores unchanged — the restructure moved scope, not capability; axis 2 flow coverage improved since cut concepts were largely mission-unreachable).
+Last scored: 2026-08-09 (post reactive-explanation round: axis 4 moved 2 → 3 via user-paced
+Z4 mechanism steppers on 11 concepts and Builder→map wiring. Total 16/24. Reactive
+explanation's own path-to-4 — extending stepper coverage past 26%, and a manipulable
+parameter step — is the natural next round, alongside provenance, still at 2/4.).
