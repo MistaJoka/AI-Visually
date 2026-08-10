@@ -121,6 +121,7 @@
   const svg=$('#worldSvg'), viewport=$('#viewport'), districtLayer=$('#districtLayer'), nodesLayer=$('#nodesLayer'), edgesLayer=$('#edgesLayer'), effectsLayer=$('#effectsLayer'), trustLayer=$('#trustLayer');
   const statusKey=$('#statusKey'), inspector=$('#inspector');
   function svgEl(tag,attrs={}){const e=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));return e}
+  function fitText(el,full,maxW){el.textContent=full;if(maxW<=0||el.getComputedTextLength()<=maxW)return;let lo=0,hi=full.length;while(lo<hi){const mid=Math.ceil((lo+hi)/2);el.textContent=full.slice(0,mid)+'…';if(el.getComputedTextLength()<=maxW)lo=mid;else hi=mid-1}el.textContent=lo>0?full.slice(0,lo)+'…':'…'}
   function districtDecor(d,g){
     const cx=d.x+d.w/2,cy=d.y+d.h/2,pad=10;
     if(d.id==='shipyard'){
@@ -182,9 +183,10 @@
       const tex=svgEl('rect',{x:d.x,y:d.y,width:d.w,height:d.h,rx:22,class:'dtex','pointer-events':'none'});g.appendChild(tex);
       districtDecor(d,g);
       const ti=svgEl('text',{x:d.x+22,y:d.y+40,class:'dicon'});ti.textContent=d.icon;g.appendChild(ti);
-      const tn=svgEl('text',{x:d.x+65,y:d.y+35,class:'dname'});tn.textContent=d.name;g.appendChild(tn);
-      const ts=svgEl('text',{x:d.x+65,y:d.y+55,class:'dsub'});ts.textContent=d.sub;g.appendChild(ts);
-      g.addEventListener('click',()=>select(d.id));g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();select(d.id)}});districtLayer.appendChild(g)
+      const tn=svgEl('text',{x:d.x+65,y:d.y+35,class:'dname'});g.appendChild(tn);
+      const ts=svgEl('text',{x:d.x+65,y:d.y+55,class:'dsub'});g.appendChild(ts);
+      g.addEventListener('click',()=>select(d.id));g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();select(d.id)}});districtLayer.appendChild(g);
+      fitText(tn,d.name,d.x+d.w-6-(d.x+65));fitText(ts,d.sub,d.x+d.w-8-(d.x+65));
     });
     if(state.depth>=2){nodes.forEach(n=>{
       const g=svgEl('g',{class:'node','data-id':n.id,'data-district':n.district,tabindex:'0',role:'button','aria-label':`${n.name}: ${n.role}`});
@@ -197,17 +199,18 @@
       if(user.d.pins.includes(n.id)){const pm=svgEl('text',{x:n.x+n.w-14,y:n.y+14,class:'pinmark','pointer-events':'none'});pm.textContent='📌';g.appendChild(pm)}
       if(user.d.notes[n.id]){const nm2=svgEl('text',{x:n.x+n.w-(user.d.pins.includes(n.id)?28:14),y:n.y+14,class:'notemark','pointer-events':'none'});nm2.textContent='✎';g.appendChild(nm2)}
       const ic=svgEl('text',{x:n.x+10,y:n.y+25,class:'nicon'});ic.textContent=n.icon;g.appendChild(ic);
-      const nm=svgEl('text',{x:n.x+35,y:n.y+23,class:'nname'});nm.textContent=n.name.length>22?n.name.slice(0,21)+'…':n.name;g.appendChild(nm);
-      if(state.depth>=3){const rr=svgEl('text',{x:n.x+10,y:n.y+36,class:'nrole'});rr.textContent=n.role;g.appendChild(rr);}
-      if(state.depth>=3){const impls=(n.implementations||[]); impls.slice(0,2).forEach((impl,i)=>{const label=impl.name,stab=stabilityOf(label);const ig=svgEl('g',{class:'impl'});const w=Math.min((n.w-23)/2,96),x=n.x+7+i*(w+5),y=n.y+n.h+5;const ir=svgEl('rect',{x,y,width:w,height:20});const it=svgEl('text',{x:x+6,y:y+13});it.textContent=label.length>15?label.slice(0,14)+'…':label;const dot=svgEl('circle',{cx:x+w-6,cy:y+6,r:2.5,class:`implstab implstab-${stab}`});ig.setAttribute('tabindex','0');ig.setAttribute('role','button');ig.setAttribute('aria-label',`${label} (${stab}), implementation of ${n.name}`);ig.append(ir,it,dot);const openImpl=ev=>{ev.stopPropagation?.();select(n.id);openCompare(n.id)};ig.addEventListener('click',openImpl);ig.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();openImpl(ev)}});nodesLayer.appendChild(ig)})}
-      g.addEventListener('click',()=>select(n.id));g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();select(n.id)}});nodesLayer.appendChild(g)
+      const nm=svgEl('text',{x:n.x+35,y:n.y+23,class:'nname'});g.appendChild(nm);
+      let rr=null; if(state.depth>=3){rr=svgEl('text',{x:n.x+10,y:n.y+36,class:'nrole'});g.appendChild(rr);}
+      if(state.depth>=3){const impls=(n.implementations||[]); impls.slice(0,2).forEach((impl,i)=>{const label=impl.name,stab=stabilityOf(label);const ig=svgEl('g',{class:'impl'});const w=Math.min((n.w-23)/2,96),x=n.x+7+i*(w+5),y=n.y+n.h+5;const ir=svgEl('rect',{x,y,width:w,height:20});const it=svgEl('text',{x:x+6,y:y+13});const dot=svgEl('circle',{cx:x+w-6,cy:y+6,r:2.5,class:`implstab implstab-${stab}`});ig.setAttribute('tabindex','0');ig.setAttribute('role','button');ig.setAttribute('aria-label',`${label} (${stab}), implementation of ${n.name}`);ig.append(ir,it,dot);const openImpl=ev=>{ev.stopPropagation?.();select(n.id);openCompare(n.id)};ig.addEventListener('click',openImpl);ig.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();openImpl(ev)}});nodesLayer.appendChild(ig);fitText(it,label,w-12)})}
+      g.addEventListener('click',()=>select(n.id));g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();select(n.id)}});nodesLayer.appendChild(g);
+      fitText(nm,n.name,n.w-35-6); if(rr)fitText(rr,n.role,n.w-10-6);
     })}
     if(state.highlightPath.length>1)drawPackets();
     updateTransform();updateHUD();
   }
   function isNeighbor(a,b){return edges.some(e=>(e.a===a&&e.b===b)||(e.a===b&&e.b===a))||byId[b]?.district===byId[a]?.district}
   function drawPackets(){for(let i=0;i<state.highlightPath.length-1;i++){const a=nodeCenter(state.highlightPath[i]),b=nodeCenter(state.highlightPath[i+1]);const c=svgEl('circle',{r:6,class:'packet'});const motion=svgEl('animateMotion',{dur:`${1.25+i*.08}s`,repeatCount:'indefinite',path:`M${a.x},${a.y} C${(a.x+b.x)/2},${a.y} ${(a.x+b.x)/2},${b.y} ${b.x},${b.y}`});c.appendChild(motion);effectsLayer.appendChild(c)}}
-  function updateTransform(){viewport.setAttribute('transform',`translate(${state.panX} ${state.panY}) scale(${state.scale})`);const v=$('#miniViewport');const vw=1600/state.scale,vh=900/state.scale;v.setAttribute('width',Math.min(1584,vw));v.setAttribute('height',Math.min(884,vh));v.setAttribute('x',Math.max(8,170-state.panX/state.scale));v.setAttribute('y',Math.max(8,120-state.panY/state.scale))}
+  function updateTransform(){viewport.setAttribute('transform',`translate(${state.panX} ${state.panY}) scale(${state.scale})`);const v=$('#miniViewport');const vw=1600/state.scale,vh=900/state.scale;const vx=Math.max(8,170-state.panX/state.scale),vy=Math.max(8,120-state.panY/state.scale);v.setAttribute('width',Math.min(1584,vw,1592-vx));v.setAttribute('height',Math.min(884,vh,892-vy));v.setAttribute('x',vx);v.setAttribute('y',vy)}
   function updateHUD(){
     const names=['Z0 WORLD','Z1 DISTRICT','Z2 CONCEPT','Z3 IMPLEMENTATION','Z4 MECHANISM','Z5 ENGINEERING'];$('#zoomLabel').textContent=names[state.depth];
     let c=`<button data-crumb-home="1">WORLD</button> › <button data-crumb-home="1"><b>REFERENCE LAB</b></button>`;

@@ -47,7 +47,11 @@ frame.addEventListener('load', async () => {
   try {
     await sleep(400);
 
-    report('Tutorial shows on load', !!d.querySelector('.tutorial:not(.hidden)'));
+    report('Tutorial does not auto-show on load', !!d.querySelector('.tutorial.hidden'));
+    report('Welcome screen is the immediate landing view', d.getElementById('insTitle')?.textContent === 'The Whole Lab');
+    d.getElementById('helpBtn')?.click();
+    await sleep(150);
+    report('Help button opens the tutorial on demand', !!d.querySelector('.tutorial:not(.hidden)'));
     d.getElementById('tSkip')?.click();
     await sleep(150);
     report('Tutorial skippable', !!d.querySelector('.tutorial.hidden'));
@@ -299,6 +303,54 @@ frame.addEventListener('load', async () => {
     d.getElementById('homeBtn').click();
     await sleep(150);
     report('Home closes a stranded modal', !d.getElementById('overlay')?.classList.contains('open'));
+
+    // Frontend QA sweep: fitText overflow guard, breadcrumb/statuskey spacing, minimap bounds, tablet footer overflow
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+    for (let i = 0; i < 4; i++) d.getElementById('zoomIn').click(); // Z1 -> Z5
+    await sleep(150);
+    const textOverflows = [];
+    d.querySelectorAll('#nodesLayer text, #districtLayer text').forEach(t => {
+      try {
+        const len = t.getComputedTextLength();
+        const g = t.closest('g'); if (!g) return;
+        const rectEl = g.querySelector('rect'); if (!rectEl) return;
+        const rw = parseFloat(rectEl.getAttribute('width')) || 0, rx = parseFloat(rectEl.getAttribute('x')) || 0, tx = parseFloat(t.getAttribute('x')) || 0;
+        if (len > (rx + rw - tx) + 2) textOverflows.push(t.textContent);
+      } catch (e) {}
+    });
+    report('fitText: no label overflows its container at Z5', textOverflows.length === 0, `overflowing: ${textOverflows.join(', ')}`);
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+
+    // Breadcrumb vs status badge: realistic deep path must not overlap
+    w.location.hash = '#c/cloudAi';
+    await sleep(300);
+    const crumbsR = d.getElementById('crumbs').getBoundingClientRect();
+    const statusR = d.getElementById('statusKey').getBoundingClientRect();
+    report('Breadcrumb does not overlap status badge', crumbsR.right <= statusR.left, `crumbs right ${Math.round(crumbsR.right)}, status left ${Math.round(statusR.left)}`);
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+
+    // Minimap viewport indicator stays within its own border across every zoom depth
+    let mmOverflow = false;
+    for (let i = 0; i < 6; i++) {
+      const v = d.getElementById('miniViewport');
+      const x = parseFloat(v.getAttribute('x')), y = parseFloat(v.getAttribute('y')), vw = parseFloat(v.getAttribute('width')), vh = parseFloat(v.getAttribute('height'));
+      if (x < 7.99 || y < 7.99 || x + vw > 1592.01 || y + vh > 892.01) mmOverflow = true;
+      d.getElementById('zoomIn').click();
+    }
+    report('Minimap viewport indicator stays within its border at every zoom depth', !mmOverflow);
+    d.getElementById('homeBtn').click();
+    await sleep(150);
+
+    // Tablet-width footer: lens row + mission controls must not overflow horizontally
+    frame.style.width = '768px';
+    await sleep(200);
+    const bottomEl = d.querySelector('.bottom');
+    report('Tablet-width footer has no horizontal overflow', bottomEl.scrollWidth <= bottomEl.clientWidth + 1, `scrollW ${bottomEl.scrollWidth}, clientW ${bottomEl.clientWidth}`);
+    frame.style.width = '1280px';
+    await sleep(200);
 
     report('No JS errors during run', errors.length === 0, errors.join('; '));
   } catch (e) {
